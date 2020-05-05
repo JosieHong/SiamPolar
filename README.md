@@ -2,7 +2,7 @@
 
 This is an implement of SiamPolarMask on [mmdetection](https://github.com/open-mmlab/mmdetection). The code is coming soon.
 
-![siam_polarmask_pipeline](.\imgs\siam_polarmask_pipeline.png)
+![siam_polarmask_pipeline](./imgs/siam_polarmask_pipeline.png)
 
 ## Highlights
 
@@ -11,7 +11,7 @@ This is an implement of SiamPolarMask on [mmdetection](https://github.com/open-m
 
 ## Performances
 
-![demo](.\imgs\demo.gif)
+![demo](./imgs/demo.gif)
 
 | backbone   | $AP$ | $AP_{50}$ | $AP_{75}$ | $AP_{S}$ | $AP_{M}$ | $AP_{L}$ | Speed/fps |
 | ---------- | ---- | --------- | --------- | -------- | -------- | -------- | --------- |
