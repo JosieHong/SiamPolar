@@ -66,7 +66,10 @@ It can be trained and test as other mmdetection models. For more details, you ca
 ```shell
 python tools/train.py ./configs/siam_polarmask/siampolar_r50.py --gpus 1
 
-python tools/test.py ./configs/siam_polarmask/siampolar_r50.py ./work_dirs/siam_polarmask_r50/epoch_12.pth --out ./work_dirs/siam_polarmask_r50/res.pkl --eval segm
+python tools/test.py ./configs/siam_polarmask/siampolar_r50.py \
+./work_dirs/siam_polarmask_r50/epoch_12.pth \
+--out ./work_dirs/siam_polarmask_r50/res.pkl \
+--eval segm
 ```
 
 ## Demo
