@@ -13,10 +13,10 @@ This is an implement of SiamPolarMask on [mmdetection](https://github.com/open-m
 
 ![demo](./imgs/demo.gif)
 
-| backbone   | $AP$ | $AP_{50}$ | $AP_{75}$ | $AP_{S}$ | $AP_{M}$ | $AP_{L}$ | Speed/fps |
-| ---------- | ---- | --------- | --------- | -------- | -------- | -------- | --------- |
-| ResNet-50  | 35.1 | 83.1      | 25.5      | -1.0     | 27.5     | 35.4     | 30        |
-| ResNet-101 | 35.3 | 83.8      | 27.4      | -1.0     | 28.3     | 35.4     | 12        |
+| Backbone   | J(M) | J(O) | J(D) | F(M) | F(O) | F(D) | Speed/fps |
+| ---------- | ---- | ---- | ---- | ---- | ---- | ---- | --------- |
+| ResNet-50  | 48.6 | 56.0 | 20.8 | 34.3 | 21.2 | 20.0 | 48.0      |
+| ResNet-101 | 51.1 | 57.9 | 7.0  | 34.6 | 21.4 | 19.2 | 37.6      |
 
 *Results of other backbones are coming soon.*
 
