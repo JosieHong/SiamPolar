@@ -1,3 +1,9 @@
+'''
+@Author: JosieHong
+@Date: 2020-04-26 14:50:14
+@LastEditAuthor: JosieHong
+@LastEditTime: 2020-05-06 13:29:45
+'''
 from ..registry import DETECTORS
 from .single_stage import SingleStageDetector
 import torch.nn as nn

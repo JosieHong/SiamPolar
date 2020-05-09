@@ -1,3 +1,9 @@
+'''
+@Author: open-mmlab, xieenze
+@Date: 2020-04-22 15:08:49
+@LastEditAuthor: JosieHong
+@LastEditTime: 2020-05-06 13:30:13
+'''
 from .base import BaseDetector
 from .cascade_rcnn import CascadeRCNN
 from .double_head_rcnn import DoubleHeadRCNN

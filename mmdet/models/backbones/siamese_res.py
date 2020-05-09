@@ -1,3 +1,9 @@
+'''
+@Author: JosieHong
+@Date: 2020-04-28 22:05:51
+@LastEditAuthor: JosieHong
+@LastEditTime: 2020-05-08 22:14:24
+'''
 import logging
 
 import torch.nn as nn
@@ -479,7 +485,7 @@ class ResNet(nn.Module):
         if isinstance(pretrained, str):
             logger = logging.getLogger()
             load_checkpoint(self, pretrained, strict=False, logger=logger)
-            print("Load resNet50!")
+            print("Load ResNet!")
         elif pretrained is None:
             for m in self.modules():
                 if isinstance(m, nn.Conv2d):

@@ -181,12 +181,10 @@ def show_result_pyplot(img,
     plt.figure(figsize=fig_size)
     plt.imshow(mmcv.bgr2rgb(img))
 
-#--------------------------------------------------------------
-# For Video Object Segmentation
-#--------------------------------------------------------------
+
 
 def inference_tracker(model, imgs, img_refer, bbox):
-    """Inference image(s) with the detector.
+    """For Video Object Segmentation, inference image(s) with the detector.
 
     Args:
         model (nn.Module): The loaded detector.

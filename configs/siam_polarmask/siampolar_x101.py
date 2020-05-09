@@ -1,13 +1,13 @@
 '''
 @Author: JosieHong
 @Date: 2020-05-05 00:47:49
-@LastEditTime: 2020-05-08 22:00:26
+@LastEditTime: 2020-05-08 22:03:35
 '''
-
+# unfinished
 # model settings
 model = dict(
     type='SiamPolarMask',
-    pretrained='open-mmlab://resnet101_caffe',
+    pretrained='open-mmlab://resnext101_64x4d',
     backbone=dict(
         type='SiamBackbone',
         depth=101,

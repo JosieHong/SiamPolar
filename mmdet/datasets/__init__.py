@@ -1,3 +1,10 @@
+'''
+@Author: open-mmlab, xieenze
+@Date: 2020-04-22 15:08:37
+@LastEditAuthor: JosieHong
+@LastEditTime: 2020-05-06 13:27:29
+'''
+
 from .builder import build_dataset
 from .cityscapes import CityscapesDataset
 from .coco import CocoDataset
