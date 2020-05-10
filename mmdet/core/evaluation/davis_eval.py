@@ -4,13 +4,13 @@
             fperazzi/davis(author: federico perazzi)
 @Date: 2020-05-08 12:04:38
 @LastEditAuthor: JosieHong
-@LastEditTime: 2020-05-08 21:26:50
+@LastEditTime: 2020-05-09 11:34:03
 '''
 import numpy as np
 import time
 import warnings
 
-from .davis_measures import db_eval_iou, db_eval_boundary#, db_eval_t_stab
+from .vos_measures import db_eval_iou, db_eval_boundary#, db_eval_t_stab
 
 class DAVISeval:
     # The usage for DAVISeval is as follows:

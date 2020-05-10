@@ -1,24 +1,27 @@
 # SiamPolarMask: Single Shot Video Object Segmentation with Polar Representation
 
-This is an implement of SiamPolarMask on [mmdetection](https://github.com/open-mmlab/mmdetection). The code is coming soon.
+This is an implement of SiamPolarMask on [mmdetection](https://github.com/open-mmlab/mmdetection). 
 
 ![siam_polarmask_pipeline](./imgs/siam_polarmask_pipeline.png)
 
 ## Highlights
 
-- **One-step**: It is an anchor free method that we track the objects as points and segment them at the same time. 
+- **One-step**: It is a concise method that we track and segment the objects with points, which reduce a great amount of computing. 
+- **Initiate without Mask**: The inputs is the bounding boxes of first frame, but not the masks. 
 - **Speed**: It is a fast method for VOS because of the distance regression of key points in polar coordinates.
 
 ## Performances
 
-![demo](./imgs/demo.gif)
+<img src="./imgs/car.gif" alt="demo" style="zoom:50%;" />
+
+<img src="./imgs/bear.gif" alt="demo" style="zoom:50%;" />
+
+On DAVIS-2016: 
 
 | Backbone   | J(M) | J(O) | J(D) | F(M) | F(O) | F(D) | Speed/fps |
 | ---------- | ---- | ---- | ---- | ---- | ---- | ---- | --------- |
 | ResNet-50  | 48.6 | 56.0 | 20.8 | 34.3 | 21.2 | 20.0 | 48.0      |
 | ResNet-101 | 51.1 | 57.9 | 7.0  | 34.6 | 21.4 | 19.2 | 37.6      |
-
-*Results of other backbones are coming soon.*
 
 ## Setup Environment
 
@@ -61,7 +64,7 @@ mmdetection
 
 ## Train & Test
 
-It can be trained and test as other mmdetection models. For more details, you can read [mmdetection manual](https://mmdetection.readthedocs.io/en/latest/INSTALL.html) and [mmcv-manual](https://mmcv.readthedocs.io/en/latest/image.html).
+It can be trained and test as other mmdetection models. For more details, you can read [mmdetection-manual](https://mmdetection.readthedocs.io/en/latest/INSTALL.html) and [mmcv-manual](https://mmcv.readthedocs.io/en/latest/image.html).
 
 ```shell
 python tools/train.py ./configs/siam_polarmask/siampolar_r50.py --gpus 1

@@ -2,7 +2,7 @@
 @Author: JosieHong
 @Date: 2020-04-26 14:50:14
 @LastEditAuthor: JosieHong
-@LastEditTime: 2020-05-06 13:29:45
+@LastEditTime: 2020-05-10 17:47:24
 '''
 from ..registry import DETECTORS
 from .single_stage import SingleStageDetector

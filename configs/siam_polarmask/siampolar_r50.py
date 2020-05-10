@@ -1,9 +1,8 @@
 '''
 @Author: JosieHong
 @Date: 2020-04-22 16:19:48
-@LastEditTime: 2020-05-06 11:44:23
+@LastEditTime: 2020-05-09 11:46:54
 '''
-
 # model settings
 model = dict(
     type='SiamPolarMask',

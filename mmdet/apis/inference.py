@@ -182,7 +182,7 @@ def show_result_pyplot(img,
     plt.imshow(mmcv.bgr2rgb(img))
 
 
-
+# For track
 def inference_tracker(model, imgs, img_refer, bbox):
     """For Video Object Segmentation, inference image(s) with the detector.
 
@@ -212,7 +212,7 @@ def _inference_vos_single(model, img, img_refer, bbox, img_transform, device):
     # crop the object in first frame
     img_refer = mmcv.imread(img_refer)
     # crop the bbox
-    img_refer = torch.squeeze(torch.Tensor(mmcv.imcrop(img_refer, bbox)))
+    img_refer = mmcv.imcrop(img_refer, bbox)
 
     data = _prepare_vos_data(img, img_refer, img_transform, model.cfg, device)
     with torch.no_grad():
@@ -239,8 +239,9 @@ def _prepare_vos_data(img, img_refer, img_transform, cfg, device):
             scale_factor=scale_factor,
             flip=False)
     ]
-    img_refer = to_tensor(mmcv.imresize(np.float32(img_refer), 
-                                        cfg.data.test.refer_scale, 
-                                        return_scale=False)).permute(2, 0, 1).to(device)
+    img_refer = torch.unsqueeze(
+                    to_tensor(mmcv.imresize(np.float32(img_refer), 
+                                            cfg.data.test.refer_scale, 
+                                            return_scale=False)).permute(2, 0, 1), dim=0).to(device)
 
     return dict(img=[img], img_meta=[img_meta], img_refer=[img_refer])
