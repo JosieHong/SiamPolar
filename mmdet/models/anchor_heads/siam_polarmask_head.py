@@ -2,7 +2,7 @@
 @Author: JosieHong
 @Date: 2020-05-09 11:43:15
 @LastEditAuthor: JosieHong
-@LastEditTime: 2020-05-09 17:51:46
+@LastEditTime: 2020-05-13 17:09:57
 '''
 import torch
 import torch.nn as nn
@@ -27,7 +27,6 @@ INF = 1e8
 class Siam_PolarMask_Head(nn.Module):
 
     def __init__(self,
-                 num_classes,
                  in_channels,
                  feat_channels=256,
                  stacked_convs=4,
@@ -36,12 +35,6 @@ class Siam_PolarMask_Head(nn.Module):
                                  (512, INF)),
                  use_dcn=False,
                  mask_nms=False,
-                 loss_cls=dict(
-                     type='FocalLoss',
-                     use_sigmoid=True,
-                     gamma=2.0,
-                     alpha=0.25,
-                     loss_weight=1.0),
                  loss_bbox=dict(type='IoULoss', loss_weight=1.0),
                  loss_mask=dict(type='MaskIOULoss'),
                  loss_centerness=dict(
@@ -52,14 +45,11 @@ class Siam_PolarMask_Head(nn.Module):
                  norm_cfg=dict(type='GN', num_groups=32, requires_grad=True)):
         super(Siam_PolarMask_Head, self).__init__()
 
-        self.num_classes = num_classes
-        self.cls_out_channels = num_classes - 1
         self.in_channels = in_channels
         self.feat_channels = feat_channels
         self.stacked_convs = stacked_convs
         self.strides = strides
         self.regress_ranges = regress_ranges
-        self.loss_cls = build_loss(loss_cls)
         self.loss_bbox = build_loss(loss_bbox)
         self.loss_mask = build_loss(loss_mask)
         self.loss_centerness = build_loss(loss_centerness)
@@ -219,17 +209,13 @@ class Siam_PolarMask_Head(nn.Module):
              gt_bboxes_ignore=None,
              extra_data=None):
         assert len(bbox_preds) == len(centernesses) == len(mask_preds)
-        featmap_sizes = [featmap.size()[-2:] for featmap in cls_scores]
+        featmap_sizes = [featmap.size()[-2:] for featmap in bbox_preds]
         all_level_points = self.get_points(featmap_sizes, bbox_preds[0].dtype,
                                            bbox_preds[0].device)
 
         labels, bbox_targets, mask_targets = self.polar_target(all_level_points, extra_data)
 
-        num_imgs = cls_scores[0].size(0)
-        # flatten cls_scores, bbox_preds and centerness
-        # flatten_cls_scores = [
-        #     cls_score.permute(0, 2, 3, 1).reshape(-1, self.cls_out_channels)
-        #     for cls_score in cls_scores]
+        num_imgs = bbox_preds[0].size(0)
         flatten_bbox_preds = [
             bbox_pred.permute(0, 2, 3, 1).reshape(-1, 4)
             for bbox_pred in bbox_preds
@@ -242,7 +228,6 @@ class Siam_PolarMask_Head(nn.Module):
             mask_pred.permute(0, 2, 3, 1).reshape(-1, 36)
             for mask_pred in mask_preds
         ]
-        flatten_cls_scores = torch.cat(flatten_cls_scores)  # [num_pixel, 80]
         flatten_bbox_preds = torch.cat(flatten_bbox_preds)  # [num_pixel, 4]
         flatten_mask_preds = torch.cat(flatten_mask_preds)  # [num_pixel, 36]
         flatten_centerness = torch.cat(flatten_centerness)  # [num_pixel]
@@ -255,9 +240,6 @@ class Siam_PolarMask_Head(nn.Module):
         pos_inds = flatten_labels.nonzero().reshape(-1)
         num_pos = len(pos_inds)
 
-        loss_cls = self.loss_cls(
-            flatten_cls_scores, flatten_labels,
-            avg_factor=num_pos + num_imgs)  # avoid num_pos is 0
         pos_bbox_preds = flatten_bbox_preds[pos_inds]
         pos_centerness = flatten_centerness[pos_inds]
         pos_mask_preds = flatten_mask_preds[pos_inds]
@@ -291,7 +273,6 @@ class Siam_PolarMask_Head(nn.Module):
             loss_centerness = pos_centerness.sum()
 
         return dict(
-            loss_cls=loss_cls,
             loss_bbox=loss_bbox,
             loss_mask=loss_mask,
             loss_centerness=loss_centerness)
@@ -365,26 +346,20 @@ class Siam_PolarMask_Head(nn.Module):
         centerness_targets = (pos_mask_targets.min(dim=-1)[0] / pos_mask_targets.max(dim=-1)[0])
         return torch.sqrt(centerness_targets)
 
-    @force_fp32(apply_to=('cls_scores', 'bbox_preds', 'centernesses'))
+    @force_fp32(apply_to=('bbox_preds', 'centernesses'))
     def get_bboxes(self,
-                   cls_scores,
                    bbox_preds,
                    centernesses,
                    mask_preds,
                    img_metas,
                    cfg,
                    rescale=None):
-        assert len(cls_scores) == len(bbox_preds)
-        num_levels = len(cls_scores)
-
-        featmap_sizes = [featmap.size()[-2:] for featmap in cls_scores]
+        num_levels = len(bbox_preds)
+        featmap_sizes = [featmap.size()[-2:] for featmap in bbox_preds]
         mlvl_points = self.get_points(featmap_sizes, bbox_preds[0].dtype,
                                       bbox_preds[0].device)
         result_list = []
         for img_id in range(len(img_metas)):
-            cls_score_list = [
-                cls_scores[i][img_id].detach() for i in range(num_levels)
-            ]
             bbox_pred_list = [
                 bbox_preds[i][img_id].detach() for i in range(num_levels)
             ]
@@ -396,8 +371,7 @@ class Siam_PolarMask_Head(nn.Module):
             ]
             img_shape = img_metas[img_id]['img_shape']
             scale_factor = img_metas[img_id]['scale_factor']
-            det_bboxes = self.get_bboxes_single(cls_score_list,
-                                                bbox_pred_list,
+            det_bboxes = self.get_bboxes_single(bbox_pred_list,
                                                 mask_pred_list,
                                                 centerness_pred_list,
                                                 mlvl_points, img_shape,
@@ -406,7 +380,6 @@ class Siam_PolarMask_Head(nn.Module):
         return result_list
 
     def get_bboxes_single(self,
-                          cls_scores,
                           bbox_preds,
                           mask_preds,
                           centernesses,
@@ -415,34 +388,22 @@ class Siam_PolarMask_Head(nn.Module):
                           scale_factor,
                           cfg,
                           rescale=False):
-        assert len(cls_scores) == len(bbox_preds) == len(mlvl_points)
+        assert len(bbox_preds) == len(mlvl_points)
         mlvl_bboxes = []
-        mlvl_scores = []
         mlvl_masks = []
         mlvl_centerness = []
-        for cls_score, bbox_pred, mask_pred, centerness, points in zip(
-                cls_scores, bbox_preds, mask_preds, centernesses, mlvl_points):
-            assert cls_score.size()[-2:] == bbox_pred.size()[-2:]
-            scores = cls_score.permute(1, 2, 0).reshape(
-                -1, self.cls_out_channels).sigmoid()
+        for bbox_pred, mask_pred, centerness, points in zip(
+                bbox_preds, mask_preds, centernesses, mlvl_points):
 
             centerness = centerness.permute(1, 2, 0).reshape(-1).sigmoid()
             bbox_pred = bbox_pred.permute(1, 2, 0).reshape(-1, 4)
             mask_pred = mask_pred.permute(1, 2, 0).reshape(-1, 36)
             nms_pre = cfg.get('nms_pre', -1)
-            if nms_pre > 0 and scores.shape[0] > nms_pre:
-                max_scores, _ = (scores * centerness[:, None]).max(dim=1)
-                _, topk_inds = max_scores.topk(nms_pre)
-                points = points[topk_inds, :]
-                bbox_pred = bbox_pred[topk_inds, :]
-                mask_pred = mask_pred[topk_inds, :]
-                scores = scores[topk_inds, :]
-                centerness = centerness[topk_inds]
+            
             bboxes = distance2bbox(points, bbox_pred, max_shape=img_shape)
             masks = distance2mask(points, mask_pred, self.angles, max_shape=img_shape)
 
             mlvl_bboxes.append(bboxes)
-            mlvl_scores.append(scores)
             mlvl_centerness.append(centerness)
             mlvl_masks.append(masks)
 
@@ -458,37 +419,29 @@ class Siam_PolarMask_Head(nn.Module):
             except:
                 _mlvl_masks = mlvl_masks / mlvl_masks.new_tensor(scale_factor)
 
-        mlvl_scores = torch.cat(mlvl_scores)
-        padding = mlvl_scores.new_zeros(mlvl_scores.shape[0], 1)
-        mlvl_scores = torch.cat([padding, mlvl_scores], dim=1)
         mlvl_centerness = torch.cat(mlvl_centerness)
-
         centerness_factor = 0.5  # mask centerness is smaller than origin centerness, so add a constant is important or the score will be too low.
         if self.mask_nms:
             '''1 mask->min_bbox->nms, performance same to origin box'''
             a = _mlvl_masks
             _mlvl_bboxes = torch.stack([a[:, 0].min(1)[0],a[:, 1].min(1)[0],a[:, 0].max(1)[0],a[:, 1].max(1)[0]],-1)
-            det_bboxes, det_labels, det_masks = multiclass_nms_with_mask(
+            det_bboxes, det_masks = multiclass_nms_with_mask(
                 _mlvl_bboxes,
-                mlvl_scores,
                 _mlvl_masks,
                 cfg.score_thr,
-                cfg.nms,
                 cfg.max_per_img,
                 score_factors=mlvl_centerness + centerness_factor)
 
         else:
             '''2 origin bbox->nms, performance same to mask->min_bbox'''
-            det_bboxes, det_labels, det_masks = multiclass_nms_with_mask(
+            det_bboxes, det_masks = multiclass_nms_with_mask(
                 _mlvl_bboxes,
-                mlvl_scores,
                 _mlvl_masks,
                 cfg.score_thr,
-                cfg.nms,
                 cfg.max_per_img,
                 score_factors=mlvl_centerness + centerness_factor)
 
-        return det_bboxes, det_labels, det_masks
+        return det_bboxes, det_masks
 
 
 # test

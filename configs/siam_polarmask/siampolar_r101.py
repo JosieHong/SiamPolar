@@ -1,7 +1,7 @@
 '''
 @Author: JosieHong
 @Date: 2020-05-05 00:47:49
-@LastEditTime: 2020-05-08 22:00:26
+@LastEditTime: 2020-05-13 22:28:05
 '''
 
 # model settings
@@ -9,7 +9,7 @@ model = dict(
     type='SiamPolarMask',
     pretrained='open-mmlab://resnet101_caffe',
     backbone=dict(
-        type='SiamBackbone',
+        type='SiamResNet',
         depth=101,
         num_stages=4,
         out_indices=(0, 1, 2, 3),
@@ -122,7 +122,7 @@ lr_config = dict(
     warmup='linear',
     warmup_iters=500,
     warmup_ratio=1.0 / 3 / lr_ratio,
-    step=[8, 11])
+    step=[8, 11, 19])
 checkpoint_config = dict(interval=1)
 # for training on colab, which doesn't support os.symlink()
 # checkpoint_config = dict(interval=1, create_symlink=False)
@@ -135,7 +135,7 @@ log_config = dict(
     ])
 # yapf:enable
 # runtime settings
-total_epochs = 12
+total_epochs = 24
 device_ids = range(4)
 dist_params = dict(backend='nccl')
 log_level = 'INFO'

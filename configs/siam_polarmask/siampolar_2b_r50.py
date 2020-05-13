@@ -1,7 +1,7 @@
 '''
 @Author: JosieHong
 @Date: 2020-04-22 16:19:48
-@LastEditTime: 2020-05-12 16:12:39
+@LastEditTime: 2020-05-13 15:57:30
 '''
 # model settings
 model = dict(
@@ -25,18 +25,11 @@ model = dict(
         num_outs=5,
         relu_before_extra_convs=True),
     bbox_head=dict(
-        type='PolarMask_Head',
-        num_classes=120,
+        type='Siam_PolarMask_Head',
         in_channels=256,
         stacked_convs=4,
         feat_channels=256,
         strides=[8, 16, 32, 64, 128],
-        loss_cls=dict(
-            type='FocalLoss',
-            use_sigmoid=True,
-            gamma=2.0,
-            alpha=0.25,
-            loss_weight=1.0),
         loss_bbox=dict(type='IoULoss', loss_weight=1.0),
         loss_centerness=dict(
             type='CrossEntropyLoss', use_sigmoid=True, loss_weight=1.0)))
@@ -138,7 +131,7 @@ total_epochs = 12
 device_ids = range(4)
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = './work_dirs/trash'
+work_dir = './work_dirs/siam_polarmask_2b_r50'
 load_from = None
 resume_from = None
 workflow = [('train', 1)]

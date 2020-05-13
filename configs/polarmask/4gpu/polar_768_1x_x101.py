@@ -130,7 +130,7 @@ total_epochs = 12
 device_ids = range(8)
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = './work_dirs/trash'
+work_dir = './work_dirs/polar_768_1x_x101_4gpu'
 load_from = None
 resume_from = None
 workflow = [('train', 1)]

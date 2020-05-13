@@ -20,8 +20,8 @@ On DAVIS-2016:
 
 | Backbone   | J(M) | J(O) | J(D) | F(M) | F(O) | F(D) | Speed/fps |
 | ---------- | ---- | ---- | ---- | ---- | ---- | ---- | --------- |
-| ResNet-50  | 48.6 | 56.0 | 20.8 | 34.3 | 21.2 | 20.0 | 48.0      |
-| ResNet-101 | 51.1 | 57.9 | 7.0  | 34.6 | 21.4 | 19.2 | 37.6      |
+| ResNet-50  | 60.5 | 77.3 | 1.7  | 44.0 | 35.3 | 13.9 | 33.2      |
+| ResNet-101 | 53.3 | 65.8 | -2.5 | 36.2 | 23.8 | 15.5 | 26.4      |
 
 ## Setup Environment
 
@@ -64,7 +64,7 @@ mmdetection
 
 ## Train & Test
 
-It can be trained and test as other mmdetection models. For more details, you can read [mmdetection-manual](https://mmdetection.readthedocs.io/en/latest/INSTALL.html) and [mmcv-manual](https://mmcv.readthedocs.io/en/latest/image.html).
+It can be trained and test as other mmdetection models. For more details, you can read [mmdetection-manual](https://mmdetection.readthedocs.io/en/latest/INSTALL.html) and [mmcv-manual](https://mmcv.readthedocs.io/en/latest/image.html). This is an example of SiamPolarMask(ResNet50 Backbone). 
 
 ```shell
 python tools/train.py ./configs/siam_polarmask/siampolar_r50.py --gpus 1
@@ -72,7 +72,7 @@ python tools/train.py ./configs/siam_polarmask/siampolar_r50.py --gpus 1
 python tools/test.py ./configs/siam_polarmask/siampolar_r50.py \
 ./work_dirs/siam_polarmask_r50/epoch_12.pth \
 --out ./work_dirs/siam_polarmask_r50/res.pkl \
---eval segm
+--eval vos
 ```
 
 ## Demo

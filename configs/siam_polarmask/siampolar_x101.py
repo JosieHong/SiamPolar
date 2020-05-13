@@ -1,15 +1,15 @@
 '''
 @Author: JosieHong
-@Date: 2020-04-22 16:19:48
-@LastEditTime: 2020-05-12 16:12:39
+@Date: 2020-05-05 00:47:49
+@LastEditTime: 2020-05-13 10:59:25
 '''
 # model settings
 model = dict(
     type='SiamPolarMask',
-    pretrained='open-mmlab://resnet50_caffe',
+    pretrained='open-mmlab://resnext101_64x4d',
     backbone=dict(
-        type='SiamResNet',
-        depth=50,
+        type='SiamResNeXt',
+        depth=101,
         num_stages=4,
         out_indices=(0, 1, 2, 3),
         frozen_stages=1,
@@ -138,7 +138,7 @@ total_epochs = 12
 device_ids = range(4)
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = './work_dirs/trash'
+work_dir = './work_dirs/siam_polarmask_x101'
 load_from = None
 resume_from = None
 workflow = [('train', 1)]

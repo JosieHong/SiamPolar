@@ -219,6 +219,14 @@ class PolarMask_Head(nn.Module):
              extra_data=None):
         assert len(cls_scores) == len(bbox_preds) == len(centernesses) == len(mask_preds)
         featmap_sizes = [featmap.size()[-2:] for featmap in cls_scores]
+        # featmap_sizes: 
+        #   [   torch.Size([96, 160]), 
+        #       torch.Size([48, 80]), 
+        #       torch.Size([24, 40]), 
+        #       torch.Size([12, 20]), 
+        #       torch.Size([6, 10])
+        #   ]
+
         all_level_points = self.get_points(featmap_sizes, bbox_preds[0].dtype,
                                            bbox_preds[0].device)
 
