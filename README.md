@@ -1,14 +1,15 @@
-# SiamPolarMask: Single Shot Video Object Segmentation with Polar Representation
+# Asymmetric SiamPolarMask: Single Shot Video Object Segmentation with Polar Representation
 
-This is an implement of SiamPolarMask on [mmdetection](https://github.com/open-mmlab/mmdetection). 
+This is an implement of Asymmetric SiamPolarMask on [mmdetection](https://github.com/open-mmlab/mmdetection). 
 
 ![siam_polarmask_pipeline](./imgs/siam_polarmask_pipeline.png)
 
 ## Highlights
 
+- **Accuracy**: For Siamese Networks, such as SiamFC, SiamMask and so on, they use the same backbone for both research images and refer images. However, research images and reference images are usually not the same sizes, which leads to the backbone cannot pay attention to the same field on them. Thus, we use an **Asymmetric Siamese Network** to solve this problem and get a more accuracy segmentation results. 
+- **Speed**: It is a fast method for VOS because of the distance regression of key points in polar coordinates.
 - **One-step**: It is a concise method that we track and segment the objects with points, which reduce a great amount of computing. 
 - **Initiate without Mask**: The inputs is the bounding boxes of first frame, but not the masks. 
-- **Speed**: It is a fast method for VOS because of the distance regression of key points in polar coordinates.
 
 ## Performances
 
@@ -18,10 +19,11 @@ This is an implement of SiamPolarMask on [mmdetection](https://github.com/open-m
 
 On DAVIS-2016: 
 
-| Backbone   | J(M) | J(O) | J(D) | F(M) | F(O) | F(D) | Speed/fps |
-| ---------- | ---- | ---- | ---- | ---- | ---- | ---- | --------- |
-| ResNet-50  | 60.5 | 77.3 | 1.7  | 44.0 | 35.3 | 13.9 | 33.2      |
-| ResNet-101 | 53.3 | 65.8 | -2.5 | 36.2 | 23.8 | 15.5 | 26.4      |
+| Backbone             | J(M) | J(O) | J(D) | F(M) | F(O) | F(D) | Speed/fps |
+| -------------------- | ---- | ---- | ---- | ---- | ---- | ---- | --------- |
+| ResNet-50            | 60.5 | 77.3 | 1.7  | 44.0 | 35.3 | 13.9 | 33.20     |
+| ResNet-101           | 53.3 | 65.8 | -2.5 | 36.2 | 23.8 | 15.5 | 26.40     |
+| Asymmetric ResNet101 | 63.3 | 80.6 | 1.9  | 49.1 | 45.1 | 18.6 | 41.60     |
 
 ## Setup Environment
 
@@ -47,7 +49,7 @@ pip install -v -e .
 2. Convert DAVIS to coco format by `/tools/conver_datasets/davis2coco.py` and organized it as following
 
 ```shell
-mmdetection
+SiamPolarMask
 ├── mmdet
 ├── tools
 ├── configs
@@ -74,6 +76,8 @@ python tools/test.py ./configs/siam_polarmask/siampolar_r50.py \
 --out ./work_dirs/siam_polarmask_r50/res.pkl \
 --eval vos
 ```
+
+It is very convenient to change the backbones in `./mmdet/model/backbones/siamese.py`.
 
 ## Demo
 

@@ -2,7 +2,7 @@
 @Author: JosieHong
 @Date: 2020-04-22 16:26:29
 @LastEditAuthor: JosieHong
-@LastEditTime: 2020-05-13 22:27:25
+@LastEditTime: 2020-05-17 12:14:07
 '''
 
 import math
@@ -45,6 +45,24 @@ class SiamResNet(nn.Module):
                  with_cp=False,
                  zero_init_residual=True):
         super(SiamResNet, self).__init__()
+        self.resnet_refer = ResNet(50,
+                            num_stages,
+                            strides,
+                            dilations,
+                            out_indices,
+                            style,
+                            frozen_stages,
+                            conv_cfg,
+                            norm_cfg,
+                            norm_eval,
+                            dcn,
+                            stage_with_dcn,
+                            gcb,
+                            stage_with_gcb,
+                            gen_attention,
+                            stage_with_gen_attention,
+                            with_cp,
+                            zero_init_residual)
         self.resnet = ResNet(depth,
                             num_stages,
                             strides,
@@ -65,12 +83,13 @@ class SiamResNet(nn.Module):
                             zero_init_residual)
         self.match_batchnorm = nn.BatchNorm2d(1)
         self.gen_block5 = nn.Conv2d(2049, 2048, 1)
+        
 
     def forward(self, x1, x2): 
         """
         Args:
             x1 (torch.Tensor): The search region image of dimensions
-                [B, C, H', W']. Usually the shape is [4, 3, 255, 255].
+                [B, C, H', W']. Usually the shape is [4, 3, 768, 1280].
             x2 (torch.Tensor): The reference patch of dimensions [B, C, H, W].
                 Usually the shape is [4, 3, 127, 127].
         Returns:
@@ -82,19 +101,18 @@ class SiamResNet(nn.Module):
         # print("x1 shape: {}, x2 shape: {}".format(x1.shape, x2.shape))
         # exit()
         
-        # [4,256,64,64], [4,512,32,32], [4,1024,16,16], [4,2048,8,8]
+        # [4,256,192,320], [4,512,96,160], [4,1024,48,80], [4,2048,24,40]
         block2, block3, block4, embedding_search = self.resnet(x1)
         # [4,2048,4,4]
-        _, _, _, embedding_reference = self.resnet(x2)
+        _, _, _, embedding_reference = self.resnet_refer(x2)
 
         # josie.debug
         # print("ResNet out shape: {}, {}, {}, {}, {}".format(embedding_reference.shape, block2.shape, block3.shape, \
         #     block4.shape, embedding_search.shape))
         # exit()
 
-        self.upsc_size = embedding_search.shape[2:] # [8,8]
-        # [4,1,5,5] -> [4,1,8,8]
-        match_map = self.match_corr(embedding_reference, embedding_search, self.upsc_size)
+        # [4,1,21,37] -> [4,1,24,40]
+        match_map = self.match_corr(embedding_reference, embedding_search, embedding_search.shape[2:])
 
         # josie.debug
         # print("match_map shape: {}".format(match_map.shape))
@@ -106,7 +124,7 @@ class SiamResNet(nn.Module):
         # print("block5 shape: {}".format(block5.shape))
         # exit()
         
-        # [4,256,64,64], [4,512,32,32], [4,1024,16,16], [4,2048,8,8]
+        # [4,256,192,320], [4,512,96,160], [4,1024,48,80], [4,2048,24,40]
         out = [block2, block3, block4, block5]
 
         return tuple(out)
@@ -156,6 +174,8 @@ class SiamResNeXt(nn.Module):
     def __init__(self, groups=1, base_width=4, **kwargs):
         super(SiamResNeXt, self).__init__()
         self.resnext = ResNeXt(groups=1, base_width=4, **kwargs)
+        # differ with SiamResNet init
+        self.resnet_refer = ResNet(50, frozen_stages=1)
         self.match_batchnorm = nn.BatchNorm2d(1)
         self.gen_block5 = nn.Conv2d(2049, 2048, 1)
     def forward(self, x1, x2): 
@@ -174,19 +194,18 @@ class SiamResNeXt(nn.Module):
         # print("x1 shape: {}, x2 shape: {}".format(x1.shape, x2.shape))
         # exit()
         
-        # [4,256,64,64], [4,512,32,32], [4,1024,16,16], [4,2048,8,8]
+        # [4,256,192,320], [4,512,96,160], [4,1024,48,80], [4,2048,24,40]
         block2, block3, block4, embedding_search = self.resnext(x1)
         # [4,2048,4,4]
-        _, _, _, embedding_reference = self.resnext(x2)
+        _, _, _, embedding_reference = self.resnet_refer(x2)
 
         # josie.debug
         # print("ResNet out shape: {}, {}, {}, {}, {}".format(embedding_reference.shape, block2.shape, block3.shape, \
         #     block4.shape, embedding_search.shape))
         # exit()
 
-        self.upsc_size = embedding_search.shape[2:] # [8,8]
-        # [4,1,5,5] -> [4,1,8,8]
-        match_map = self.match_corr(embedding_reference, embedding_search, self.upsc_size)
+        # [4,1,21,37] -> [4,1,24,40]
+        match_map = self.match_corr(embedding_reference, embedding_search, embedding_search.shape[2:])
 
         # josie.debug
         # print("match_map shape: {}".format(match_map.shape))
@@ -198,7 +217,7 @@ class SiamResNeXt(nn.Module):
         # print("block5 shape: {}".format(block5.shape))
         # exit()
         
-        # [4,256,64,64], [4,512,32,32], [4,1024,16,16], [4,2048,8,8]
+        # [4,256,192,320], [4,512,96,160], [4,1024,48,80], [4,2048,24,40]
         out = [block2, block3, block4, block5]
 
         return tuple(out)
