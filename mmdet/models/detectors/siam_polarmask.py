@@ -2,7 +2,7 @@
 @Author: JosieHong
 @Date: 2020-04-26 14:50:14
 @LastEditAuthor: JosieHong
-@LastEditTime: 2020-05-10 17:47:24
+@LastEditTime: 2020-06-16 11:28:51
 '''
 from ..registry import DETECTORS
 from .single_stage import SingleStageDetector
@@ -55,7 +55,6 @@ class SiamPolarMask(SingleStageDetector):
                               _gt_masks=_gt_masks)
         else:
             extra_data = None
-
 
         x = self.extract_feat(img, img_refer)
         outs = self.bbox_head(x)

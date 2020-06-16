@@ -2,14 +2,15 @@
 @Author: open-mmlab
 @Date: 2020-04-22 15:08:46
 @LastEditAuthor: JosieHong
-@LastEditTime: 2020-05-10 23:21:38
+@LastEditTime: 2020-06-16 10:29:12
 '''
 
 from .hrnet import HRNet
 from .resnet import ResNet, make_res_layer
 from .resnext import ResNeXt
 from .ssd_vgg import SSDVGG
-from .siamese import SiamResNet, SiamResNeXt
+# from .siamese import SiamResNet, SiamResNeXt, AsySiamNet
+from .siam_resnet import SiamResNet
 
 __all__ = ['ResNet', 'make_res_layer', 'ResNeXt', 'SSDVGG', 'HRNet', 
-            'SiamResNet', 'SiamResNeXt']
+            'SiamResNet']

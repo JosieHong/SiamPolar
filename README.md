@@ -1,15 +1,16 @@
-# Asymmetric SiamPolarMask: Single Shot Video Object Segmentation with Polar Representation
+# Asymmetric SiamPolar: Single Shot Video Object Segmentation with Polar Representation
 
 This is an implement of Asymmetric SiamPolarMask on [mmdetection](https://github.com/open-mmlab/mmdetection). 
 
 ![siam_polarmask_pipeline](./imgs/siam_polarmask_pipeline.png)
 
+Figure1.SiamPolar
+
 ## Highlights
 
-- **Accuracy**: For Siamese Networks, such as SiamFC, SiamMask and so on, they use the same backbone for both research images and refer images. However, research images and reference images are usually not the same sizes, which leads to the backbone cannot pay attention to the same field on them. Thus, we use an **Asymmetric Siamese Network** to solve this problem and get a more accuracy segmentation results. 
-- **Speed**: It is a fast method for VOS because of the distance regression of key points in polar coordinates.
-- **One-step**: It is a concise method that we track and segment the objects with points, which reduce a great amount of computing. 
-- **Initiate without Mask**: The inputs is the bounding boxes of first frame, but not the masks. 
+- **Polar Representation:** We introduce polar coordinate represented mask into Video Object Segmentation, which reaches 67.1% J(mean) and 53.1fps in DAVIS2016. Besides, we design a correlation module using cross-correlation to reduce the number of network parameters other than depth-correlation. 
+- **Asymmetric Siamese Network**: Most Siamese Networks use the same shadow backbone for both research images and template images, which lead to the unaligned scaled problems. However, research images and reference images are usually not the same sizes leading the backbone cannot pay attention to the same field on them. 
+- **FPN:** To make use of different scales of features, we use FPN(Feature Pyramid Network). According to our experiments, FPN is more efficient than other popular feature fusion methods in SiamPolar. 
 
 ## Performances
 
@@ -23,23 +24,25 @@ On DAVIS-2016:
 | -------------------- | ---- | ---- | ---- | ---- | ---- | ---- | --------- |
 | ResNet-50            | 60.5 | 77.3 | 1.7  | 44.0 | 35.3 | 13.9 | 33.20     |
 | ResNet-101           | 53.3 | 65.8 | -2.5 | 36.2 | 23.8 | 15.5 | 26.40     |
-| Asymmetric ResNet101 | 63.3 | 80.6 | 1.9  | 49.1 | 45.1 | 18.6 | 41.60     |
+| Asymmetric ResNet101 | 67.4 | 90.3 | 0.08 | 50.2 | 43.3 | 12.3 | 52.40     |
 
 ## Setup Environment
 
-Our SiamPolarMask is based on [mmdetection](https://github.com/open-mmlab/mmdetection). It can be installed easily as following. 
+Our SiamPolarMask is based on [mmdetection](https://github.com/open-mmlab/mmdetection). It can be installed easily as following, and more details can be seen in `./INSTALL.md`.
 
 ```shell
 git clone ...
 cd SiamPolarMask
 conda create -n open_mmlab python=3.7 -y
-conda activate open_mmlab
+source activate open_mmlab
 
 pip install --upgrade pip
 pip install cython torch==1.4.0 torchvision==0.5.0 mmcv
 pip install -r requirements.txt # ignore the errors
 pip install "git+https://github.com/cocodataset/cocoapi.git#subdirectory=PythonAPI"
-pip install -v -e . 
+
+python setup.py develop
+# or "pip install -v -e ."
 ```
 
 ## Prepare DAVIS Dataset

@@ -1,7 +1,7 @@
 '''
 @Author: JosieHong
 @Date: 2020-04-22 16:19:48
-@LastEditTime: 2020-05-12 16:12:39
+@LastEditTime: 2020-06-17 01:01:27
 '''
 # model settings
 model = dict(
@@ -15,15 +15,13 @@ model = dict(
         frozen_stages=1,
         norm_cfg=dict(type='BN', requires_grad=False),
         style='caffe'),
+        correlation_blocks=[2, 3, 4, 5],
     neck=dict(
         type='FPN',
         in_channels=[256, 512, 1024, 2048],
         out_channels=256,
         start_level=1,
-        add_extra_convs=True,
-        extra_convs_on_inputs=False,  # use P5
-        num_outs=5,
-        relu_before_extra_convs=True),
+        num_outs=5),
     bbox_head=dict(
         type='PolarMask_Head',
         num_classes=120,
@@ -31,6 +29,7 @@ model = dict(
         stacked_convs=4,
         feat_channels=256,
         strides=[8, 16, 32, 64, 128],
+        regress_ranges=[(-1, 128), (128, 256), (256, 1e8)],
         loss_cls=dict(
             type='FocalLoss',
             use_sigmoid=True,
@@ -63,13 +62,13 @@ data_root = 'data/DAVIS/'
 img_norm_cfg = dict(
     mean=[102.9801, 115.9465, 122.7717], std=[1.0, 1.0, 1.0], to_rgb=False)
 data = dict(
-    imgs_per_gpu=2,
+    imgs_per_gpu=4,
     workers_per_gpu=5,
     train=dict(
         type=dataset_type,
         ann_file=data_root + 'Annotations/480p_trainval.json',
         img_prefix=data_root,
-        img_scale=(1280, 768),
+        img_scale=(255, 255),
         img_norm_cfg=img_norm_cfg,
         refer_scale=(127, 127),
         # size_divisor=0,
@@ -77,12 +76,15 @@ data = dict(
         with_mask=True,
         with_crowd=False,
         with_label=True,
-        resize_keep_ratio=False),
+        resize_keep_ratio=False,
+        # for FPN
+        strides=[8, 16, 32],
+        regress_ranges=[(-1, 128), (128, 256), (256, 1e8)]),
     val=dict(
         type=dataset_type,
         ann_file=data_root + 'Annotations/480p_val.json',
         img_prefix=data_root,
-        img_scale=(1280, 768),
+        img_scale=(255, 255),
         img_norm_cfg=img_norm_cfg,
         refer_scale=(127, 127),
         # size_divisor=0,
@@ -95,7 +97,7 @@ data = dict(
         type=dataset_type,
         ann_file=data_root + 'Annotations/480p_val.json',
         img_prefix=data_root,
-        img_scale=(1280, 768),
+        img_scale=(255, 255),
         img_norm_cfg=img_norm_cfg,
         refer_scale=(127, 127),
         size_divisor=32,
@@ -121,7 +123,7 @@ lr_config = dict(
     warmup='linear',
     warmup_iters=500,
     warmup_ratio=1.0 / 3 / lr_ratio,
-    step=[8, 11])
+    step=[8, 11, 17])
 checkpoint_config = dict(interval=1)
 # for training on colab, which doesn't support os.symlink()
 # checkpoint_config = dict(interval=1, create_symlink=False)
@@ -134,11 +136,11 @@ log_config = dict(
     ])
 # yapf:enable
 # runtime settings
-total_epochs = 12
+total_epochs = 24
 device_ids = range(4)
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = './work_dirs/trash'
+work_dir = './work_dirs/asy_r50'
 load_from = None
 resume_from = None
 workflow = [('train', 1)]
