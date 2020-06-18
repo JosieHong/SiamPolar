@@ -1,4 +1,4 @@
-# Asymmetric SiamPolar: Single Shot Video Object Segmentation with Polar Representation
+# SiamPolar: Video Object Segmentation with Polar Representation
 
 This is an implement of Asymmetric SiamPolarMask on [mmdetection](https://github.com/open-mmlab/mmdetection). 
 
@@ -8,15 +8,13 @@ Figure1.SiamPolar
 
 ## Highlights
 
-- **Polar Representation:** We introduce polar coordinate represented mask into Video Object Segmentation, which reaches 67.1% J(mean) and 53.1fps in DAVIS2016. Besides, we design a correlation module using cross-correlation to reduce the number of network parameters other than depth-correlation. 
-- **Asymmetric Siamese Network**: Most Siamese Networks use the same shadow backbone for both research images and template images, which lead to the unaligned scaled problems. However, research images and reference images are usually not the same sizes leading the backbone cannot pay attention to the same field on them. 
+- **Polar Representation:** We introduced polar coordinate represented mask into Video Object Segmentation and designed a correlation module using cross-correlation other than depth-correlation to reduce parameters. In DAVIS2016, SiamPolar reaches 67.4% J(mean) and 52.4fps. 
+- **Asymmetric Siamese Network**: Most Siamese Networks use the same backbone for both search images and template images, which lead to the unaligned spatial problems in different scales. We proposed Asymmetric Siamese Network using similar backbone in different depth, which also the make Siamese Network could use a deeper backbone. 
 - **FPN:** To make use of different scales of features, we use FPN(Feature Pyramid Network). According to our experiments, FPN is more efficient than other popular feature fusion methods in SiamPolar. 
 
 ## Performances
 
 <img src="./imgs/car.gif" alt="demo" style="zoom:50%;" />
-
-<img src="./imgs/bear.gif" alt="demo" style="zoom:50%;" />
 
 On DAVIS-2016: 
 
@@ -80,7 +78,7 @@ python tools/test.py ./configs/siam_polarmask/siampolar_r50.py \
 --eval vos
 ```
 
-It is very convenient to change the backbones in `./mmdet/model/backbones/siamese.py`.
+We also add some configures for SiamPolar like backbone type, polar points number and so on, which can be easily set in `./configs/siam_polarmask/`.
 
 ## Demo
 
