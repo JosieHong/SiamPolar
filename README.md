@@ -8,10 +8,10 @@ Figure1.SiamPolar
 
 ## Highlights
 
-- **Polar Representation:** We introduced the polar coordinate represented mask into Video Object Segmentation and proposed SiamPolar, which is also an anchor-free object track method. In DAVIS2016, SiamPolar reaches 67.4% J(mean) and 64.4fps.
-- **Asymmetric Siamese Network**: Most Siamese Networks use the same backbone for both search images and template images, which lead to the unaligned spatial problems in different scales. We proposed Asymmetric Siamese Network using similar backbone in different depth, which also the make Siamese Network could use a deeper backbone. 
-- **Re-cross Correlation**: We designed a new correlation module using repeated cross-correlation other than depth-correlation to reduce parameters. In this way, features in every channel could focus on the target objects. 
-- **FPN:** To make use of different scales of features, we use FPN(Feature Pyramid Network). According to our experiments, FPN is more efficient than other popular feature fusion methods in SiamPolar. 
+- **Polar Representation:** We introduced the polar coordinate represented mask into Video Object Segmentation and proposed SiamPolar. It is also an anchor-free object track method. In DAVIS2016, SiamPolar reaches 69.1% J(mean) and 59.2fps. 
+- **Asymmetric Siamese Network**: Most Siamese Networks use the same backbone for both search images and template images leading to the unaligned spatial problems in different scales. To solve this problem, we proposed Asymmetric Siamese Network using similar backbone in different depth, which also the make Siamese Network could use a deeper backbone performing better. 
+- **Re-cross Correlation**: We designed a new correlation module using repeated cross-correlation other than depth-wised correlation to reduce parameters and fusion the search features improving the results of segmentation.  
+- **Semi-FPN:** To make use of different scales of features, we use Semi-FPN(Feature Pyramid Network). We adapted FPN into Semi-FPN delaying the feature fusion step into SiamPolarHead. In this way, FPN features for classification, centerness, bounding box, and mask are separated, and the antagonism between branches in SiamPolarHead is improved. 
 
 ## Performances
 
@@ -21,7 +21,7 @@ Figure1.SiamPolar
 
 **Results on DAVIS-2016**
 
-![siam_polar_performance](.\imgs\siam_polar_performance.png)
+![siam_polar_performance](./imgs/siam_polar_performance.png)
 
 ## Setup Environment
 
@@ -29,7 +29,7 @@ Our SiamPolarMask is based on [mmdetection](https://github.com/open-mmlab/mmdete
 
 ```shell
 git clone ...
-cd SiamPolarMask
+cd SiamPolar
 conda create -n open_mmlab python=3.7 -y
 source activate open_mmlab
 
@@ -49,7 +49,7 @@ python setup.py develop
 2. Convert DAVIS to coco format by `/tools/conver_datasets/davis2coco.py` and organized it as following
 
 ```shell
-SiamPolarMask
+SiamPolar
 ├── mmdet
 ├── tools
 ├── configs
@@ -69,15 +69,14 @@ SiamPolarMask
 It can be trained and test as other mmdetection models. For more details, you can read [mmdetection-manual](https://mmdetection.readthedocs.io/en/latest/INSTALL.html) and [mmcv-manual](https://mmcv.readthedocs.io/en/latest/image.html). This is an example of SiamPolarMask(ResNet50 Backbone). 
 
 ```shell
-python tools/train.py ./configs/siam_polarmask/siampolar_r50.py --gpus 1
+python tools/train.py ./configs/siampolar/siampolar_r101.py --gpus 1
 
-python tools/test.py ./configs/siam_polarmask/siampolar_r50.py \
-./work_dirs/siam_polarmask_r50/epoch_12.pth \
+python tools/test.py ./configs/siampolar/siampolar_r101.py \./work_dirs/siam_polarmask_r50/epoch_12.pth \
 --out ./work_dirs/siam_polarmask_r50/res.pkl \
 --eval vos
 ```
 
-We also add some configures for SiamPolar like backbone type, polar points number and so on, which can be easily set in `./configs/siam_polarmask/`.
+We also add some configures for SiamPolar like backbone type, polar points number and so on, which can be easily set in `./configs/siampolar/`.
 
 ## Demo
 

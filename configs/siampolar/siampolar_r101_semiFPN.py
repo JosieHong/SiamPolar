@@ -1,7 +1,7 @@
 '''
 @Author: JosieHong
 @Date: 2020-05-05 00:47:49
-@LastEditTime: 2020-06-18 16:55:02
+@LastEditTime: 2020-06-25 14:25:01
 '''
 
 # model settings
@@ -18,17 +18,17 @@ model = dict(
         frozen_stages=1,
         norm_cfg=dict(type='BN', requires_grad=False),
         style='caffe',
-        correlation_blocks=[2, 3, 4, 5]), # block num
+        correlation_blocks=[5]), # block num
     neck=dict(
-        type='FPN',
+        type='SemiFPN',
         in_channels=[256, 512, 1024, 2048],
         out_channels=256,
         start_level=1,
-        num_outs=5),
+        num_outs=4),
     bbox_head=dict(
         type='SiamPolar_Head',
         num_classes=120,
-        num_polar=72,
+        num_polar=36,
         in_channels=256,
         stacked_convs=4,
         feat_channels=256,
@@ -73,10 +73,10 @@ data = dict(
         type=dataset_type,
         ann_file=data_root + 'Annotations/480p_trainval.json',
         img_prefix=data_root,
-        img_scale=(255, 255),
+        img_scale=(255, 255), # original size
         img_norm_cfg=img_norm_cfg,
         refer_scale=(127, 127),
-        num_polar=72,
+        num_polar=36,
         # size_divisor=0,
         flip_ratio=0.5,
         with_mask=True,
@@ -93,7 +93,7 @@ data = dict(
         img_scale=(255, 255),
         img_norm_cfg=img_norm_cfg,
         refer_scale=(127, 127),
-        num_polar=72,
+        num_polar=36,
         # size_divisor=0,
         flip_ratio=0,
         with_mask=False,
@@ -107,7 +107,7 @@ data = dict(
         img_scale=(255, 255),
         img_norm_cfg=img_norm_cfg,
         refer_scale=(127, 127),
-        num_polar=72,
+        num_polar=36,
         size_divisor=32,
         flip_ratio=0,
         with_mask=False,
@@ -131,7 +131,7 @@ lr_config = dict(
     warmup='linear',
     warmup_iters=500,
     warmup_ratio=1.0 / 3 / lr_ratio,
-    step=[8, 11, 17])
+    step=[8, 11, 17, 31])
 checkpoint_config = dict(interval=1)
 # for training on colab, which doesn't support os.symlink()
 # checkpoint_config = dict(interval=1, create_symlink=False)
@@ -144,11 +144,11 @@ log_config = dict(
     ])
 # yapf:enable
 # runtime settings
-total_epochs = 24
+total_epochs = 48
 device_ids = range(4)
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = './work_dirs/trash'
+work_dir = './work_dirs/asy_r101_semi'
 load_from = None
 resume_from = None
 workflow = [('train', 1)]
