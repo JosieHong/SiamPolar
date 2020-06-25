@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from mmcv.cnn import normal_init
 
 from mmdet.core import distance2bbox, force_fp32, multi_apply, multiclass_nms, multiclass_nms_with_mask
@@ -28,6 +29,7 @@ class SiamPolar_Head(nn.Module):
                  strides=[4, 8, 16, 32, 64],
                  regress_ranges=[(-1, 64), (64, 128), (128, 256), (256, 512),
                                  (512, INF)],
+                 num_polar=36,
                  use_dcn=False,
                  mask_nms=False,
                  loss_cls=dict(
@@ -63,13 +65,17 @@ class SiamPolar_Head(nn.Module):
         # xez add for polarmask
         self.use_dcn = use_dcn
         self.mask_nms = mask_nms
+        # josie add for siampolar
+        assert num_polar in [36, 72]
+        self.num_polar = num_polar
 
         # debug vis img
         self.vis_num = 1000
         self.count = 0
 
         # test
-        self.angles = torch.range(0, 350, 10).cuda() / 180 * math.pi
+        step_size = int(360/self.num_polar)
+        self.angles = torch.range(0, 359, step_size).cuda() / 180 * math.pi
 
         self._init_layers()
 
@@ -156,11 +162,17 @@ class SiamPolar_Head(nn.Module):
         self.polar_cls = nn.Conv2d(
             self.feat_channels, self.cls_out_channels, 3, padding=1)
         self.polar_reg = nn.Conv2d(self.feat_channels, 4, 3, padding=1)
-        self.polar_mask = nn.Conv2d(self.feat_channels, 36, 3, padding=1)
+        self.polar_mask = nn.Conv2d(self.feat_channels, self.num_polar, 3, padding=1)
         self.polar_centerness = nn.Conv2d(self.feat_channels, 1, 3, padding=1)
 
         self.scales_bbox = nn.ModuleList([Scale(1.0) for _ in self.strides])
         self.scales_mask = nn.ModuleList([Scale(1.0) for _ in self.strides])
+
+        self.mask_refine = nn.ModuleDict()
+        refine_channels = ['512', '1024', '2048']
+        assert len(refine_channels) == len(self.scales_mask)
+        for i in range(len(refine_channels)):
+            self.mask_refine[refine_channels[i]] = nn.Conv2d(int(refine_channels[i]), self.feat_channels, 1)
 
     def init_weights(self):
         if not self.use_dcn:
@@ -179,14 +191,21 @@ class SiamPolar_Head(nn.Module):
         normal_init(self.polar_mask, std=0.01)
         normal_init(self.polar_centerness, std=0.01)
 
-    def forward(self, feats):
-        return multi_apply(self.forward_single, feats, self.scales_bbox, self.scales_mask)
+    def forward(self, feats, x_4refines):
+        x_4refines = x_4refines[-len(self.scales_mask):] # discard some redidual featuress
+        # print("forward feats")
+        # for out in feats:
+        #     print(out.size())
+        # print("forward x_4refines")
+        # for out in x_4refines:
+        #     print(out.size())
+        return multi_apply(self.forward_single, feats, x_4refines, self.scales_bbox, self.scales_mask)
 
-    def forward_single(self, x, scale_bbox, scale_mask):
+    def forward_single(self, x, x_4refine, scale_bbox, scale_mask):
         cls_feat = x
         reg_feat = x
         mask_feat = x
-
+        
         for cls_layer in self.cls_convs:
             cls_feat = cls_layer(cls_feat)
         cls_score = self.polar_cls(cls_feat)
@@ -198,6 +217,15 @@ class SiamPolar_Head(nn.Module):
         # float to avoid overflow when enabling FP16
         bbox_pred = scale_bbox(self.polar_reg(reg_feat)).float().exp()
 
+        # josie.debug
+        # print("single_forward")
+        # print("mask_feat size\n\t", mask_feat.size())
+        # print("x_4refine size\n\t", x_4refine.size())
+
+        # # refinement mask branch
+        # x_4refine = self.mask_refine[str(x_4refine.size()[1])](x_4refine)
+        # mask_feat = F.relu(mask_feat + x_4refine)
+        
         for mask_layer in self.mask_convs:
             mask_feat = mask_layer(mask_feat)
         mask_pred = scale_mask(self.polar_mask(mask_feat)).float().exp()
@@ -243,7 +271,7 @@ class SiamPolar_Head(nn.Module):
             for centerness in centernesses
         ]
         flatten_mask_preds = [
-            mask_pred.permute(0, 2, 3, 1).reshape(-1, 36)
+            mask_pred.permute(0, 2, 3, 1).reshape(-1, self.num_polar)
             for mask_pred in mask_preds
         ]
         flatten_cls_scores = torch.cat(flatten_cls_scores)  # [num_pixel, 80]
@@ -435,7 +463,7 @@ class SiamPolar_Head(nn.Module):
 
             centerness = centerness.permute(1, 2, 0).reshape(-1).sigmoid()
             bbox_pred = bbox_pred.permute(1, 2, 0).reshape(-1, 4)
-            mask_pred = mask_pred.permute(1, 2, 0).reshape(-1, 36)
+            mask_pred = mask_pred.permute(1, 2, 0).reshape(-1, self.num_polar)
             nms_pre = cfg.get('nms_pre', -1)
             if nms_pre > 0 and scores.shape[0] > nms_pre:
                 max_scores, _ = (scores * centerness[:, None]).max(dim=1)
@@ -446,7 +474,7 @@ class SiamPolar_Head(nn.Module):
                 scores = scores[topk_inds, :]
                 centerness = centerness[topk_inds]
             bboxes = distance2bbox(points, bbox_pred, max_shape=img_shape)
-            masks = distance2mask(points, mask_pred, self.angles, max_shape=img_shape)
+            masks = distance2mask(points, mask_pred, self.angles, self.num_polar, max_shape=img_shape)
 
             mlvl_bboxes.append(bboxes)
             mlvl_scores.append(scores)
@@ -460,7 +488,7 @@ class SiamPolar_Head(nn.Module):
         if rescale:
             _mlvl_bboxes = mlvl_bboxes / mlvl_bboxes.new_tensor(scale_factor)
             try:
-                scale_factor = torch.Tensor(scale_factor)[:2].cuda().unsqueeze(1).repeat(1, 36)
+                scale_factor = torch.Tensor(scale_factor)[:2].cuda().unsqueeze(1).repeat(1, self.num_polar)
                 _mlvl_masks = mlvl_masks / scale_factor
             except:
                 _mlvl_masks = mlvl_masks / mlvl_masks.new_tensor(scale_factor)
@@ -499,7 +527,7 @@ class SiamPolar_Head(nn.Module):
 
 
 # test
-def distance2mask(points, distances, angles, max_shape=None):
+def distance2mask(points, distances, angles, num_polar, max_shape=None):
     '''Decode distance prediction to 36 mask points
     Args:
         points (Tensor): Shape (n, 2), [x, y].
@@ -511,9 +539,9 @@ def distance2mask(points, distances, angles, max_shape=None):
         Tensor: Decoded masks.
     '''
     num_points = points.shape[0]
-    points = points[:, :, None].repeat(1, 1, 36)
+    points = points[:, :, None].repeat(1, 1, num_polar)
     c_x, c_y = points[:, 0], points[:, 1]
-
+    
     sin = torch.sin(angles)
     cos = torch.cos(angles)
     sin = sin[None, :].repeat(num_points, 1)
@@ -528,6 +556,3 @@ def distance2mask(points, distances, angles, max_shape=None):
 
     res = torch.cat([x[:, None, :], y[:, None, :]], dim=1)
     return res
-
-
-

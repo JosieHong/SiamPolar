@@ -2,7 +2,7 @@
 @Author: JosieHong
 @Date: 2020-04-26 14:50:14
 @LastEditAuthor: JosieHong
-@LastEditTime: 2020-06-16 11:28:51
+@LastEditTime: 2020-06-18 00:07:49
 '''
 from ..registry import DETECTORS
 from .single_stage import SingleStageDetector
@@ -32,9 +32,15 @@ class SiamPolarMask(SingleStageDetector):
 
     def extract_feat(self, img, img_refer):
         x = self.backbone(img, img_refer)
+        x_4refine = x
+        # SiamPoalr Detector:
+        #     torch.Size([4, 256, 64, 64])
+        #     torch.Size([4, 512, 32, 32])
+        #     torch.Size([4, 1024, 16, 16])
+        #     torch.Size([4, 2048, 8, 8])
         if self.with_neck:
             x = self.neck(x)
-        return x
+        return x, x_4refine
 
     def forward_train(self,
                       img,
@@ -56,8 +62,8 @@ class SiamPolarMask(SingleStageDetector):
         else:
             extra_data = None
 
-        x = self.extract_feat(img, img_refer)
-        outs = self.bbox_head(x)
+        x, x_4refine = self.extract_feat(img, img_refer)
+        outs = self.bbox_head(x, x_4refine)
         loss_inputs = outs + (gt_bboxes, gt_labels, img_metas, self.train_cfg)
         
         losses = self.bbox_head.loss(
@@ -89,8 +95,8 @@ class SiamPolarMask(SingleStageDetector):
             return self.aug_test(imgs, img_metas, img_refers, rescale)
 
     def simple_test(self, img, img_meta, img_refer, rescale=False):
-        x = self.extract_feat(img, img_refer)
-        outs = self.bbox_head(x)
+        x, x_4refine = self.extract_feat(img, img_refer)
+        outs = self.bbox_head(x, x_4refine)
 
         bbox_inputs = outs + (img_meta, self.test_cfg, rescale)
         bbox_list = self.bbox_head.get_bboxes(*bbox_inputs)

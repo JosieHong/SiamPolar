@@ -2,9 +2,8 @@
 @Author: JosieHong
 @Date: 2020-04-26 12:40:11
 @LastEditAuthor: JosieHong
-@LastEditTime: 2020-05-06 13:27:50
+@LastEditTime: 2020-06-18 16:51:57
 '''
-
 
 import os.path as osp
 import warnings
@@ -53,7 +52,8 @@ class DAVIS_Seg_Dataset(Coco_Seg_Dataset):
                  img_prefix,
                  img_scale,
                  img_norm_cfg,
-                 refer_scale=(127,127), 
+                 refer_scale=(127,127),
+                 num_polar=36,
                  multiscale_mode='value',
                  size_divisor=None,
                  proposal_file=None,
@@ -70,7 +70,10 @@ class DAVIS_Seg_Dataset(Coco_Seg_Dataset):
                  corruption=None,
                  corruption_severity=1,
                  skip_img_without_anno=True,
-                 test_mode=False):
+                 test_mode=False,
+                 strides=[8, 16, 32, 64, 128],
+                 regress_ranges=[(-1, 64), (64, 128), 
+                            (128, 256), (256, 512), (512, 1e8)]):
         super(DAVIS_Seg_Dataset, self).__init__(ann_file,
                                                 img_prefix,
                                                 img_scale,
@@ -92,7 +95,12 @@ class DAVIS_Seg_Dataset(Coco_Seg_Dataset):
                                                 corruption_severity,
                                                 skip_img_without_anno,
                                                 test_mode)
+
         self.refer_scale = refer_scale
+        self.strides = strides
+        self.regress_ranges = regress_ranges
+        assert num_polar in [36, 72]
+        self.num_polar = num_polar
 
     def prepare_train_img(self, idx):
         img_info = self.img_infos[idx]
@@ -200,12 +208,25 @@ class DAVIS_Seg_Dataset(Coco_Seg_Dataset):
         self.center_sample = True
         self.use_mask_center = True
         self.radius = 1.5
-        self.strides = [8, 16, 32, 64, 128]
-        self.regress_ranges=((-1, 64), (64, 128), (128, 256), (256, 512),(512, INF))
+
         featmap_sizes = self.get_featmap_size(pad_shape)
-        self.featmap_sizes = featmap_sizes
+        # print("DAVIS featmap_sizes: ", featmap_sizes)
+
+        # # josie.2020.6.13
+        # self.strides = [16]
+        # self.regress_ranges=[(-1, INF)]
+        # featmap_sizes = self.get_featmap_size(pad_shape)
+        # # resize the featmap_size for depth_correlation
+        # # featmap_sizes: [[31, 31], [15, 15], [7, 7], [3, 3]] -> 
+        # # featmap_sizes: [[33, 33], [17, 17], [9, 9], [5, 5]]
+        # featmap_sizes = [
+        #     [featmap_sizes[i][0]+2, featmap_sizes[i][1]+2] 
+        #     for i in range(len(featmap_sizes))
+        #     ] # [[17, 17]]
+        
         num_levels = len(self.strides)
         all_level_points = self.get_points(featmap_sizes)
+        
         self.num_points_per_level = [i.size()[0] for i in all_level_points]
 
         expanded_regress_ranges = [
@@ -220,7 +241,7 @@ class DAVIS_Seg_Dataset(Coco_Seg_Dataset):
         gt_labels = torch.Tensor(gt_labels)
 
         _labels, _bbox_targets, _mask_targets = self.polar_target_single(
-            gt_bboxes,gt_masks,gt_labels,concat_points, concat_regress_ranges)
+            gt_bboxes,gt_masks,gt_labels,concat_points, concat_regress_ranges, self.num_polar)
 
         data['_gt_labels'] = DC(_labels)
         data['_gt_bboxes'] = DC(_bbox_targets)
@@ -228,6 +249,14 @@ class DAVIS_Seg_Dataset(Coco_Seg_Dataset):
         #--------------------offline ray label generation-----------------------------
         return data
 
+    def get_featmap_size(self, shape):
+        h,w = shape[:2]
+        featmap_sizes = []
+        for i in self.strides:
+            # featmap_sizes.append([int(h / i), int(w / i)])
+            featmap_sizes.append([int(h / i)+1, int(w / i)+1])
+        return featmap_sizes
+        
     def prepare_test_img(self, idx):
         """Prepare an image for testing (multi-scale and flipping)"""
         img_info = self.img_infos[idx]
@@ -307,6 +336,154 @@ class DAVIS_Seg_Dataset(Coco_Seg_Dataset):
         if self.proposals is not None:
             data['proposals'] = proposals
         return data
+    
+    # fit different polar nunbers
+    def polar_target_single(self, gt_bboxes, gt_masks, gt_labels, points, regress_ranges, num_polar):
+        num_points = points.size(0)
+        num_gts = gt_labels.size(0)
+        if num_gts == 0:
+            return gt_labels.new_zeros(num_points), \
+                   gt_bboxes.new_zeros((num_points, 4))
+
+        areas = (gt_bboxes[:, 2] - gt_bboxes[:, 0] + 1) * (
+            gt_bboxes[:, 3] - gt_bboxes[:, 1] + 1)
+        # TODO: figure out why these two are different
+        # areas = areas[None].expand(num_points, num_gts)
+        areas = areas[None].repeat(num_points, 1)
+        regress_ranges = regress_ranges[:, None, :].expand(
+            num_points, num_gts, 2)
+        gt_bboxes = gt_bboxes[None].expand(num_points, num_gts, 4)
+        #xs ys 分别是points的x y坐标
+        xs, ys = points[:, 0], points[:, 1]
+        xs = xs[:, None].expand(num_points, num_gts)
+        ys = ys[:, None].expand(num_points, num_gts)
+        left = xs - gt_bboxes[..., 0]
+        right = gt_bboxes[..., 2] - xs
+        top = ys - gt_bboxes[..., 1]
+        bottom = gt_bboxes[..., 3] - ys
+        bbox_targets = torch.stack((left, top, right, bottom), -1)   #feature map上所有点对于gtbox的上下左右距离 [num_pix, num_gt, 4]
+
+        #mask targets 也按照这种写 同时labels 得从bbox中心修改成mask 重心
+        mask_centers = []
+        mask_contours = []
+        #第一步 先算重心  return [num_gt, 2]
+
+        for mask in gt_masks:
+            cnt, contour = self.get_single_centerpoint(mask)
+            contour = contour[0]
+            contour = torch.Tensor(contour).float()
+            y, x = cnt
+            mask_centers.append([x,y])
+            mask_contours.append(contour)
+        mask_centers = torch.Tensor(mask_centers).float()
+        # 把mask_centers assign到不同的层上,根据regress_range和重心的位置
+        mask_centers = mask_centers[None].expand(num_points, num_gts, 2)
+
+        #-------------------------------------------------------------------------------------------------------------------------------------------------------------
+        # condition1: inside a gt bbox
+        #加入center sample
+        if self.center_sample:
+            strides = [8, 16, 32, 64, 128]
+            if self.use_mask_center:
+                inside_gt_bbox_mask = self.get_mask_sample_region(gt_bboxes,
+                                                             mask_centers,
+                                                             strides,
+                                                             self.num_points_per_level,
+                                                             xs,
+                                                             ys,
+                                                             radius=self.radius)
+            else:
+                inside_gt_bbox_mask = self.get_sample_region(gt_bboxes,
+                                                             strides,
+                                                             self.num_points_per_level,
+                                                             xs,
+                                                             ys,
+                                                             radius=self.radius)
+        else:
+            inside_gt_bbox_mask = bbox_targets.min(-1)[0] > 0
+
+        # condition2: limit the regression range for each location
+        max_regress_distance = bbox_targets.max(-1)[0]
+
+        inside_regress_range = (
+            max_regress_distance >= regress_ranges[..., 0]) & (
+            max_regress_distance <= regress_ranges[..., 1])
+
+        areas[inside_gt_bbox_mask == 0] = INF
+        areas[inside_regress_range == 0] = INF
+        min_area, min_area_inds = areas.min(dim=1)
+
+        labels = gt_labels[min_area_inds]
+        labels[min_area == INF] = 0         #[num_gt] 介于0-80
+
+        bbox_targets = bbox_targets[range(num_points), min_area_inds]
+        pos_inds = labels.nonzero().reshape(-1)
+
+        # mask_targets = torch.zeros(num_points, 36).float()
+        # josie: for 72 points
+        mask_targets = torch.zeros(num_points, num_polar).float()
+
+        pos_mask_ids = min_area_inds[pos_inds]
+        for p,id in zip(pos_inds, pos_mask_ids):
+            x, y = points[p]
+            pos_mask_contour = mask_contours[id]
+
+            # dists, coords = self.get_36_coordinates(x, y, pos_mask_contour)
+            # josie: for 72 points
+            dists, coords = self.get_coordinates(x, y, pos_mask_contour, num_polar)
+            mask_targets[p] = dists
+
+        return labels, bbox_targets, mask_targets
+
+    def get_coordinates(self, c_x, c_y, pos_mask_contour, num_polar):
+        ct = pos_mask_contour[:, 0, :]
+        x = ct[:, 0] - c_x
+        y = ct[:, 1] - c_y
+        # angle = np.arctan2(x, y)*180/np.pi
+        angle = torch.atan2(x, y) * 180 / np.pi
+        angle[angle < 0] += 360
+        angle = angle.int()
+        # dist = np.sqrt(x ** 2 + y ** 2)
+        dist = torch.sqrt(x ** 2 + y ** 2)
+        angle, idx = torch.sort(angle)
+        dist = dist[idx]
+
+        # generate num_polar angles
+        new_coordinate = {}
+        step_size = int(360/num_polar)
+        for i in range(0, 360, step_size):
+            if i in angle:
+                d = dist[angle==i].max()
+                new_coordinate[i] = d
+            elif i + 1 in angle:
+                d = dist[angle == i+1].max()
+                new_coordinate[i] = d
+            elif i - 1 in angle:
+                d = dist[angle == i-1].max()
+                new_coordinate[i] = d
+            elif i + 2 in angle:
+                d = dist[angle == i+2].max()
+                new_coordinate[i] = d
+            elif i - 2 in angle:
+                d = dist[angle == i-2].max()
+                new_coordinate[i] = d
+            elif i + 3 in angle:
+                d = dist[angle == i+3].max()
+                new_coordinate[i] = d
+            elif i - 3 in angle:
+                d = dist[angle == i-3].max()
+                new_coordinate[i] = d
+
+        distances = torch.zeros(num_polar)
+
+        for a in range(0, 360, step_size):
+            if not a in new_coordinate.keys():
+                new_coordinate[a] = torch.tensor(1e-6)
+                distances[a//step_size] = 1e-6
+            else:
+                distances[a//step_size] = new_coordinate[a]
+
+        return distances, new_coordinate
 
     def __getitem__(self, idx):
         if self.test_mode:

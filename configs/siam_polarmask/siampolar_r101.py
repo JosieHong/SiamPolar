@@ -1,7 +1,7 @@
 '''
 @Author: JosieHong
 @Date: 2020-05-05 00:47:49
-@LastEditTime: 2020-06-16 23:03:25
+@LastEditTime: 2020-06-18 16:55:02
 '''
 
 # model settings
@@ -11,6 +11,8 @@ model = dict(
     backbone=dict(
         type='SiamResNet',
         depth=101,
+        template_depth=50,
+        template_pretrained='open-mmlab://resnet50_caffe',
         num_stages=4,
         out_indices=(0, 1, 2, 3),
         frozen_stages=1,
@@ -26,6 +28,7 @@ model = dict(
     bbox_head=dict(
         type='SiamPolar_Head',
         num_classes=120,
+        num_polar=72,
         in_channels=256,
         stacked_convs=4,
         feat_channels=256,
@@ -64,7 +67,7 @@ data_root = 'data/DAVIS/'
 img_norm_cfg = dict(
     mean=[102.9801, 115.9465, 122.7717], std=[1.0, 1.0, 1.0], to_rgb=False)
 data = dict(
-    imgs_per_gpu=4,
+    imgs_per_gpu=12,
     workers_per_gpu=5,
     train=dict(
         type=dataset_type,
@@ -73,6 +76,7 @@ data = dict(
         img_scale=(255, 255),
         img_norm_cfg=img_norm_cfg,
         refer_scale=(127, 127),
+        num_polar=72,
         # size_divisor=0,
         flip_ratio=0.5,
         with_mask=True,
@@ -89,6 +93,7 @@ data = dict(
         img_scale=(255, 255),
         img_norm_cfg=img_norm_cfg,
         refer_scale=(127, 127),
+        num_polar=72,
         # size_divisor=0,
         flip_ratio=0,
         with_mask=False,
@@ -102,6 +107,7 @@ data = dict(
         img_scale=(255, 255),
         img_norm_cfg=img_norm_cfg,
         refer_scale=(127, 127),
+        num_polar=72,
         size_divisor=32,
         flip_ratio=0,
         with_mask=False,
@@ -142,7 +148,7 @@ total_epochs = 24
 device_ids = range(4)
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = './work_dirs/asy_r101_more'
+work_dir = './work_dirs/trash'
 load_from = None
 resume_from = None
 workflow = [('train', 1)]

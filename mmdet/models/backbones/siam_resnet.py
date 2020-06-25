@@ -2,7 +2,7 @@
 @Author: JosieHong
 @Date: 2020-06-16 10:21:50
 @LastEditAuthor: JosieHong
-@LastEditTime: 2020-06-16 13:33:25
+@LastEditTime: 2020-06-18 10:45:42
 '''
 
 import math
@@ -28,6 +28,8 @@ class SiamResNet(nn.Module):
     """
     def __init__(self, 
                  depth,
+                 template_depth,
+                 template_pretrained,
                  num_stages=4,
                  strides=(1, 2, 2, 2),
                  dilations=(1, 1, 1, 1),
@@ -47,26 +49,42 @@ class SiamResNet(nn.Module):
                  zero_init_residual=True,
                  correlation_blocks=[3, 4, 5]):
         super(SiamResNet, self).__init__()
-        self.template_backbone = ResNet(50, frozen_stages=1)
-        self.template_pretrained = 'open-mmlab://resnet50_caffe'
+        self.template_backbone = ResNet(template_depth, num_stages,
+                                        strides,
+                                        dilations,
+                                        out_indices,
+                                        style,
+                                        frozen_stages,
+                                        conv_cfg,
+                                        norm_cfg,
+                                        norm_eval,
+                                        dcn,
+                                        stage_with_dcn,
+                                        gcb,
+                                        stage_with_gcb,
+                                        gen_attention,
+                                        stage_with_gen_attention,
+                                        with_cp,
+                                        zero_init_residual)
+        self.template_pretrained = template_pretrained
         self.search_backbone = ResNet(depth,
-                            num_stages,
-                            strides,
-                            dilations,
-                            out_indices,
-                            style,
-                            frozen_stages,
-                            conv_cfg,
-                            norm_cfg,
-                            norm_eval,
-                            dcn,
-                            stage_with_dcn,
-                            gcb,
-                            stage_with_gcb,
-                            gen_attention,
-                            stage_with_gen_attention,
-                            with_cp,
-                            zero_init_residual)
+                                        num_stages,
+                                        strides,
+                                        dilations,
+                                        out_indices,
+                                        style,
+                                        frozen_stages,
+                                        conv_cfg,
+                                        norm_cfg,
+                                        norm_eval,
+                                        dcn,
+                                        stage_with_dcn,
+                                        gcb,
+                                        stage_with_gcb,
+                                        gen_attention,
+                                        stage_with_gen_attention,
+                                        with_cp,
+                                        zero_init_residual)
         self.correlation_blocks = [correlation_block-2 
                                     for correlation_block in correlation_blocks] # start from block2
         self.match_batchnorm = nn.BatchNorm2d(1)

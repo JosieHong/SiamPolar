@@ -8,21 +8,20 @@ Figure1.SiamPolar
 
 ## Highlights
 
-- **Polar Representation:** We introduced polar coordinate represented mask into Video Object Segmentation and designed a correlation module using cross-correlation other than depth-correlation to reduce parameters. In DAVIS2016, SiamPolar reaches 67.4% J(mean) and 52.4fps. 
+- **Polar Representation:** We introduced the polar coordinate represented mask into Video Object Segmentation and proposed SiamPolar, which is also an anchor-free object track method. In DAVIS2016, SiamPolar reaches 67.4% J(mean) and 64.4fps.
 - **Asymmetric Siamese Network**: Most Siamese Networks use the same backbone for both search images and template images, which lead to the unaligned spatial problems in different scales. We proposed Asymmetric Siamese Network using similar backbone in different depth, which also the make Siamese Network could use a deeper backbone. 
+- **Re-cross Correlation**: We designed a new correlation module using repeated cross-correlation other than depth-correlation to reduce parameters. In this way, features in every channel could focus on the target objects. 
 - **FPN:** To make use of different scales of features, we use FPN(Feature Pyramid Network). According to our experiments, FPN is more efficient than other popular feature fusion methods in SiamPolar. 
 
 ## Performances
 
 <img src="./imgs/car.gif" alt="demo" style="zoom:50%;" />
 
-On DAVIS-2016: 
 
-| Backbone             | J(M) | J(O) | J(D) | F(M) | F(O) | F(D) | Speed/fps |
-| -------------------- | ---- | ---- | ---- | ---- | ---- | ---- | --------- |
-| ResNet-50            | 60.5 | 77.3 | 1.7  | 44.0 | 35.3 | 13.9 | 33.20     |
-| ResNet-101           | 53.3 | 65.8 | -2.5 | 36.2 | 23.8 | 15.5 | 26.40     |
-| Asymmetric ResNet101 | 67.4 | 90.3 | 0.08 | 50.2 | 43.3 | 12.3 | 52.40     |
+
+**Results on DAVIS-2016**
+
+![siam_polar_performance](.\imgs\siam_polar_performance.png)
 
 ## Setup Environment
 

@@ -467,7 +467,7 @@ class Coco_Seg_Dataset(CustomDataset):
         center_y = mask_center[..., 0]
         center_x = mask_center[..., 1]
         center_gt = gt_bb.new_zeros(gt_bb.shape)
-        #no gt
+        # no gt
         if center_x[..., 0].sum() == 0:
             return gt_xs.new_zeros(gt_xs.shape, dtype=torch.uint8)
 
@@ -518,7 +518,7 @@ class Coco_Seg_Dataset(CustomDataset):
 
     def get_single_centerpoint(self, mask):
         contour, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
-        contour.sort(key=lambda x: cv2.contourArea(x), reverse=True) #only save the biggest one
+        contour.sort(key=lambda x: cv2.contourArea(x), reverse=True) # only save the biggest one
         '''debug IndexError: list index out of range'''
         count = contour[0][:, 0, :]
         try:
@@ -546,7 +546,7 @@ class Coco_Seg_Dataset(CustomDataset):
         angle, idx = torch.sort(angle)
         dist = dist[idx]
 
-        #生成36个角度
+        # generate 36 angles
         new_coordinate = {}
         for i in range(0, 360, 10):
             if i in angle:
@@ -571,7 +571,6 @@ class Coco_Seg_Dataset(CustomDataset):
                 d = dist[angle == i-3].max()
                 new_coordinate[i] = d
 
-
         distances = torch.zeros(36)
 
         for a in range(0, 360, 10):
@@ -580,13 +579,8 @@ class Coco_Seg_Dataset(CustomDataset):
                 distances[a//10] = 1e-6
             else:
                 distances[a//10] = new_coordinate[a]
-        # for idx in range(36):
-        #     dist = new_coordinate[idx * 10]
-        #     distances[idx] = dist
 
         return distances, new_coordinate
-
-
 
     def __getitem__(self, idx):
         if self.test_mode:

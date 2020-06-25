@@ -1,3 +1,9 @@
+'''
+@Author: xieenze
+@Date: 2020-04-22 15:08:28
+@LastEditAuthor: JosieHong
+@LastEditTime: 2020-06-25 00:16:48
+'''
 import argparse
 import os
 import os.path as osp
@@ -11,7 +17,7 @@ from mmcv.runner import load_checkpoint, get_dist_info
 from mmcv.parallel import MMDataParallel, MMDistributedDataParallel
 
 from mmdet.apis import init_dist
-from mmdet.core import results2json, coco_eval, wrap_fp16_model
+from mmdet.core import results2json, coco_eval, wrap_fp16_model, davis_eval
 from mmdet.datasets import build_dataloader, build_dataset
 from mmdet.models import build_detector
 
@@ -118,7 +124,7 @@ def parse_args():
         '--eval',
         type=str,
         nargs='+',
-        choices=['proposal', 'proposal_fast', 'bbox', 'segm', 'keypoints'],
+        choices=['proposal', 'proposal_fast', 'bbox', 'segm', 'keypoints', 'vos'],
         help='eval types')
     parser.add_argument('--show', action='store_true', help='show results')
     parser.add_argument('--tmpdir', help='tmp dir for writing some results')
@@ -201,6 +207,9 @@ def main():
             if eval_types == ['proposal_fast']:
                 result_file = args.out
                 coco_eval(result_file, eval_types, dataset.coco)
+            elif eval_types == ['vos']: 
+                result_files = results2json(dataset, outputs, args.out)
+                davis_eval(result_files, dataset.coco)
             else:
                 if not isinstance(outputs[0], dict):
                     result_files = results2json(dataset, outputs, args.out)

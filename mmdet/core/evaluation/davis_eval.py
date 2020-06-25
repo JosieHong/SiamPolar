@@ -4,7 +4,7 @@
             fperazzi/davis(author: federico perazzi)
 @Date: 2020-05-08 12:04:38
 @LastEditAuthor: JosieHong
-@LastEditTime: 2020-05-09 11:34:03
+@LastEditTime: 2020-06-25 10:49:37
 '''
 import numpy as np
 import time
@@ -61,22 +61,26 @@ class DAVISeval:
         for gt in gts:
             gt['ignore'] = gt['ignore'] if 'ignore' in gt else 0
             gt['ignore'] = 'iscrowd' in gt and gt['iscrowd']
-            
         for gt in gts:
             self._gts.append(gt)
-        last_img_id = -1
+        last_img_id = 0 # the first img_id is 1
         for dt in dts:
             if dt['image_id'] == last_img_id:
                 continue
             self._dts.append(dt)
+            if dt['image_id'] > last_img_id + 1:
+                missing_range = dt['image_id'] - (last_img_id + 1)
+                for i in range(missing_range):
+                    print("Image {} is missing. An empty result is appended.".format(last_img_id + 1 + i))
+                    self._dts.append(dict({'image_id':last_img_id + 1 + i, 
+                                            'score': 0, 
+                                            'category_id': None, 
+                                            'segmentation': np.zeros(dt['segmentation'].shape), 
+                                            'area': 0, 
+                                            'bbox': np.array([0, 0, 0, 0]), 
+                                            'id': None, 
+                                            'iscrowd': None}))
             last_img_id = dt['image_id']
-
-        # # josie.debug
-        # print(type(self._gts), type(self._dts))
-        # print(self._gts[:3])
-        # print(self._dts[:3])
-        # print('_gts length: ', len(self._gts), '\n_dts length: ', len(self._dts))
-        # exit()
 
     def _eval(self, annotations, segmentations, eval_func, measure):
         """ Evaluate all videos.

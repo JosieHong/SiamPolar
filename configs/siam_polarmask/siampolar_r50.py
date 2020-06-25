@@ -1,7 +1,7 @@
 '''
 @Author: JosieHong
 @Date: 2020-04-22 16:19:48
-@LastEditTime: 2020-06-17 01:01:27
+@LastEditTime: 2020-06-18 13:13:55
 '''
 # model settings
 model = dict(
@@ -10,6 +10,8 @@ model = dict(
     backbone=dict(
         type='SiamResNet',
         depth=50,
+        template_depth=50,
+        template_pretrained='open-mmlab://resnet50_caffe',
         num_stages=4,
         out_indices=(0, 1, 2, 3),
         frozen_stages=1,
@@ -25,6 +27,7 @@ model = dict(
     bbox_head=dict(
         type='PolarMask_Head',
         num_classes=120,
+        num_polar=36,
         in_channels=256,
         stacked_convs=4,
         feat_channels=256,
