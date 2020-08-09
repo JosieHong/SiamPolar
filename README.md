@@ -1,6 +1,6 @@
-# SiamPolar: Video Object Segmentation with Polar Representation
+# SiamPolar: Realtime Video Object Segmentation with Polar Representation
 
-This is an implement of Asymmetric SiamPolarMask on [mmdetection](https://github.com/open-mmlab/mmdetection). 
+This is an implement of SiamPolar on [mmdetection](https://github.com/open-mmlab/mmdetection). 
 
 ![siam_polarmask_pipeline](./imgs/siam_polarmask_pipeline.png)
 
@@ -8,16 +8,13 @@ Figure1.SiamPolar
 
 ## Highlights
 
-- **Polar Representation:** We introduced the polar coordinate represented mask into Video Object Segmentation and proposed SiamPolar. It is also an anchor-free object track method. In DAVIS2016, SiamPolar reaches 69.1% J(mean) and 59.2fps. 
-- **Asymmetric Siamese Network**: Most Siamese Networks use the same backbone for both search images and template images leading to the unaligned spatial problems in different scales. To solve this problem, we proposed Asymmetric Siamese Network using similar backbone in different depth, which also the make Siamese Network could use a deeper backbone performing better. 
-- **Re-cross Correlation**: We designed a new correlation module using repeated cross-correlation other than depth-wised correlation to reduce parameters and fusion the search features improving the results of segmentation.  
-- **Semi-FPN:** To make use of different scales of features, we use Semi-FPN(Feature Pyramid Network). We adapted FPN into Semi-FPN delaying the feature fusion step into SiamPolarHead. In this way, FPN features for classification, centerness, bounding box, and mask are separated, and the antagonism between branches in SiamPolarHead is improved. 
+- **Improved Polar Representation**: We introduce the improved polar representation into video object segmentation, and propose a real-time video object segmentation method SiamPolar. At the same time, this is also an anchor-free object tracking method. 
+- **Asymmetric Siamese Network**: Same backbone for the search image and the template image results in the problem of spatial misalignment between the two images. We propose an Asymmetric Siamese Network that uses similar backbones with different depths, which not only improves the problems above but also allows the Siamese Network to use deeper backbones with better performance.
+- **Peeling convolutions**: There are negative effects among the branches in Polar Head, so we design Repeated Cross Correlation and Semi-FPN based on the idea of Peeling Convolutions. Without convolution, redundant anti-features would be reduced. Hence the mutual influence between each branch feature would be weakened. 
 
 ## Performances
 
-<img src="./imgs/car.gif" alt="demo" style="zoom:50%;" />
-
-
+![vis](./imgs/vis.png)
 
 **Results on DAVIS-2016**
 
@@ -25,7 +22,7 @@ Figure1.SiamPolar
 
 ## Setup Environment
 
-Our SiamPolarMask is based on [mmdetection](https://github.com/open-mmlab/mmdetection). It can be installed easily as following, and more details can be seen in `./INSTALL.md`.
+SiamPolar is implemented on [mmdetection](https://github.com/open-mmlab/mmdetection). It can be installed easily as following, and more details can be seen in `./INSTALL.md`.
 
 ```shell
 git clone ...

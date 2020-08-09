@@ -1,12 +1,12 @@
 '''
 @Author: JosieHong
 @Date: 2020-05-05 00:47:49
-@LastEditTime: 2020-06-25 14:25:01
+@LastEditTime: 2020-07-31 12:25:32
 '''
 
 # model settings
 model = dict(
-    type='SiamPolarMask',
+    type='SiamPolar',
     pretrained='open-mmlab://resnet101_caffe',
     backbone=dict(
         type='SiamResNet',
@@ -14,12 +14,15 @@ model = dict(
         template_depth=50,
         template_pretrained='open-mmlab://resnet50_caffe',
         num_stages=4,
+        strides=(1, 2, 2, 2),
         out_indices=(0, 1, 2, 3),
         frozen_stages=1,
         norm_cfg=dict(type='BN', requires_grad=False),
         style='caffe',
-        correlation_blocks=[5]), # block num
-    neck=dict(
+        correlation_blocks=[5], # block index
+        # attention_blocks=[2, 3, 4]
+        ), 
+    neck=dict(  
         type='SemiFPN',
         in_channels=[256, 512, 1024, 2048],
         out_channels=256,
@@ -32,8 +35,8 @@ model = dict(
         in_channels=256,
         stacked_convs=4,
         feat_channels=256,
-        strides=[8, 16, 32],
-        regress_ranges=[(-1, 128), (128, 256), (256, 1e8)],
+        strides=[8, 16, 32, 64],
+        regress_ranges=[(-1, 256), (256, 1024), (1024, 2048), (2048, 1e8)],
         loss_cls=dict(
             type='FocalLoss',
             use_sigmoid=True,
@@ -67,7 +70,7 @@ data_root = 'data/DAVIS/'
 img_norm_cfg = dict(
     mean=[102.9801, 115.9465, 122.7717], std=[1.0, 1.0, 1.0], to_rgb=False)
 data = dict(
-    imgs_per_gpu=12,
+    imgs_per_gpu=8,
     workers_per_gpu=5,
     train=dict(
         type=dataset_type,
@@ -83,9 +86,9 @@ data = dict(
         with_crowd=False,
         with_label=True,
         resize_keep_ratio=False,
-        # for FPN
-        strides=[8, 16, 32],
-        regress_ranges=[(-1, 128), (128, 256), (256, 1e8)]),
+        # for semi-FPN
+        strides=[8, 16, 32, 64],
+        regress_ranges=[(-1, 256), (256, 1024), (1024, 2048), (2048, 1e8)]),
     val=dict(
         type=dataset_type,
         ann_file=data_root + 'Annotations/480p_val.json',
@@ -131,7 +134,7 @@ lr_config = dict(
     warmup='linear',
     warmup_iters=500,
     warmup_ratio=1.0 / 3 / lr_ratio,
-    step=[8, 11, 17, 31])
+    step=[8, 11, 17, 23, 29, 35, 41])
 checkpoint_config = dict(interval=1)
 # for training on colab, which doesn't support os.symlink()
 # checkpoint_config = dict(interval=1, create_symlink=False)
@@ -144,11 +147,11 @@ log_config = dict(
     ])
 # yapf:enable
 # runtime settings
-total_epochs = 48
+total_epochs = 42
 device_ids = range(4)
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = './work_dirs/asy_r101_semi'
+work_dir = './work_dirs/trash'
 load_from = None
 resume_from = None
 workflow = [('train', 1)]

@@ -1,12 +1,12 @@
 '''
 @Author: JosieHong
 @Date: 2020-05-05 00:47:49
-@LastEditTime: 2020-06-24 18:37:42
+@LastEditTime: 2020-07-07 01:40:42
 '''
 
 # model settings
 model = dict(
-    type='SiamPolarMask',
+    type='SiamPolar',
     pretrained=None,
     backbone=dict(
         type='SiamResNet',
@@ -24,7 +24,10 @@ model = dict(
         in_channels=[256, 512, 1024, 2048],
         out_channels=256,
         start_level=1,
-        num_outs=5),
+        add_extra_convs=True,
+        extra_convs_on_inputs=False,  # use P5
+        num_outs=5,
+        relu_before_extra_convs=True),
     bbox_head=dict(
         type='SiamPolar_Head',
         num_classes=120,
@@ -131,7 +134,7 @@ lr_config = dict(
     warmup='linear',
     warmup_iters=500,
     warmup_ratio=1.0 / 3 / lr_ratio,
-    step=[8, 11, 17, 31])
+    step=[8, 11, 17, 23, 29, 35])
 checkpoint_config = dict(interval=1)
 # for training on colab, which doesn't support os.symlink()
 # checkpoint_config = dict(interval=1, create_symlink=False)

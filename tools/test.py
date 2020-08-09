@@ -2,7 +2,7 @@
 @Author: xieenze
 @Date: 2020-04-22 15:08:28
 @LastEditAuthor: JosieHong
-@LastEditTime: 2020-06-25 00:16:48
+@LastEditTime: 2020-07-16 15:56:17
 '''
 import argparse
 import os
@@ -204,7 +204,7 @@ def main():
         eval_types = args.eval
         if eval_types:
             print('Starting evaluate {}'.format(' and '.join(eval_types)))
-            if eval_types == ['proposal_fast']:
+            if eval_types == ['proposal_fast']: 
                 result_file = args.out
                 coco_eval(result_file, eval_types, dataset.coco)
             elif eval_types == ['vos']: 

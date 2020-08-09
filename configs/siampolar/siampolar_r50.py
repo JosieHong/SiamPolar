@@ -1,7 +1,7 @@
 '''
 @Author: JosieHong
 @Date: 2020-04-22 16:19:48
-@LastEditTime: 2020-06-18 13:13:55
+@LastEditTime: 2020-07-02 00:15:22
 '''
 # model settings
 model = dict(
@@ -16,8 +16,8 @@ model = dict(
         out_indices=(0, 1, 2, 3),
         frozen_stages=1,
         norm_cfg=dict(type='BN', requires_grad=False),
-        style='caffe'),
-        correlation_blocks=[2, 3, 4, 5],
+        style='caffe',
+        correlation_blocks=[2, 3, 4, 5]),
     neck=dict(
         type='FPN',
         in_channels=[256, 512, 1024, 2048],
@@ -25,13 +25,13 @@ model = dict(
         start_level=1,
         num_outs=5),
     bbox_head=dict(
-        type='PolarMask_Head',
+        type='SiamPolar_Head',
         num_classes=120,
         num_polar=36,
         in_channels=256,
         stacked_convs=4,
         feat_channels=256,
-        strides=[8, 16, 32, 64, 128],
+        strides=[8, 16, 32],
         regress_ranges=[(-1, 128), (128, 256), (256, 1e8)],
         loss_cls=dict(
             type='FocalLoss',
@@ -65,15 +65,16 @@ data_root = 'data/DAVIS/'
 img_norm_cfg = dict(
     mean=[102.9801, 115.9465, 122.7717], std=[1.0, 1.0, 1.0], to_rgb=False)
 data = dict(
-    imgs_per_gpu=4,
+    imgs_per_gpu=12,
     workers_per_gpu=5,
     train=dict(
-        type=dataset_type,
+       type=dataset_type,
         ann_file=data_root + 'Annotations/480p_trainval.json',
         img_prefix=data_root,
-        img_scale=(255, 255),
+        img_scale=(255, 255), # original size
         img_norm_cfg=img_norm_cfg,
         refer_scale=(127, 127),
+        num_polar=36,
         # size_divisor=0,
         flip_ratio=0.5,
         with_mask=True,
@@ -90,6 +91,7 @@ data = dict(
         img_scale=(255, 255),
         img_norm_cfg=img_norm_cfg,
         refer_scale=(127, 127),
+        num_polar=36,
         # size_divisor=0,
         flip_ratio=0,
         with_mask=False,
@@ -103,6 +105,7 @@ data = dict(
         img_scale=(255, 255),
         img_norm_cfg=img_norm_cfg,
         refer_scale=(127, 127),
+        num_polar=36,
         size_divisor=32,
         flip_ratio=0,
         with_mask=False,

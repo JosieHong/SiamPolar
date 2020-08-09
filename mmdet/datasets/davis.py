@@ -2,11 +2,12 @@
 @Author: JosieHong
 @Date: 2020-04-26 12:40:11
 @LastEditAuthor: JosieHong
-@LastEditTime: 2020-06-18 16:51:57
+@LastEditTime: 2020-07-29 18:04:13
 '''
 
 import os.path as osp
 import warnings
+import math
 
 import mmcv
 import numpy as np
@@ -17,7 +18,6 @@ import torch
 from .utils import random_scale, to_tensor
 from .registry import DATASETS
 from .coco_seg import Coco_Seg_Dataset, INF
-
 
 @DATASETS.register_module
 class DAVIS_Seg_Dataset(Coco_Seg_Dataset):
@@ -209,23 +209,14 @@ class DAVIS_Seg_Dataset(Coco_Seg_Dataset):
         self.use_mask_center = True
         self.radius = 1.5
 
-        featmap_sizes = self.get_featmap_size(pad_shape)
-        # print("DAVIS featmap_sizes: ", featmap_sizes)
+        featmap_sizes = self.get_featmap_size(pad_shape) 
+        # featmap_sizes: [[32, 32], [16, 16], [8, 8]]
 
-        # # josie.2020.6.13
-        # self.strides = [16]
-        # self.regress_ranges=[(-1, INF)]
-        # featmap_sizes = self.get_featmap_size(pad_shape)
-        # # resize the featmap_size for depth_correlation
-        # # featmap_sizes: [[31, 31], [15, 15], [7, 7], [3, 3]] -> 
-        # # featmap_sizes: [[33, 33], [17, 17], [9, 9], [5, 5]]
-        # featmap_sizes = [
-        #     [featmap_sizes[i][0]+2, featmap_sizes[i][1]+2] 
-        #     for i in range(len(featmap_sizes))
-        #     ] # [[17, 17]]
-        
         num_levels = len(self.strides)
         all_level_points = self.get_points(featmap_sizes)
+        # level 0 points: torch.Size([1024, 2])
+        # level 1 points: torch.Size([256, 2])
+        # level 2 points: torch.Size([64, 2])
         
         self.num_points_per_level = [i.size()[0] for i in all_level_points]
 
@@ -242,18 +233,18 @@ class DAVIS_Seg_Dataset(Coco_Seg_Dataset):
 
         _labels, _bbox_targets, _mask_targets = self.polar_target_single(
             gt_bboxes,gt_masks,gt_labels,concat_points, concat_regress_ranges, self.num_polar)
-
+        
         data['_gt_labels'] = DC(_labels)
         data['_gt_bboxes'] = DC(_bbox_targets)
         data['_gt_masks'] = DC(_mask_targets)
         #--------------------offline ray label generation-----------------------------
+
         return data
 
     def get_featmap_size(self, shape):
         h,w = shape[:2]
         featmap_sizes = []
         for i in self.strides:
-            # featmap_sizes.append([int(h / i), int(w / i)])
             featmap_sizes.append([int(h / i)+1, int(w / i)+1])
         return featmap_sizes
         
@@ -381,20 +372,19 @@ class DAVIS_Seg_Dataset(Coco_Seg_Dataset):
 
         #-------------------------------------------------------------------------------------------------------------------------------------------------------------
         # condition1: inside a gt bbox
-        #加入center sample
+        # add center sample
         if self.center_sample:
-            strides = [8, 16, 32, 64, 128]
             if self.use_mask_center:
                 inside_gt_bbox_mask = self.get_mask_sample_region(gt_bboxes,
                                                              mask_centers,
-                                                             strides,
+                                                             self.strides,
                                                              self.num_points_per_level,
                                                              xs,
                                                              ys,
                                                              radius=self.radius)
             else:
                 inside_gt_bbox_mask = self.get_sample_region(gt_bboxes,
-                                                             strides,
+                                                             self.strides,
                                                              self.num_points_per_level,
                                                              xs,
                                                              ys,
@@ -419,20 +409,29 @@ class DAVIS_Seg_Dataset(Coco_Seg_Dataset):
         bbox_targets = bbox_targets[range(num_points), min_area_inds]
         pos_inds = labels.nonzero().reshape(-1)
 
-        # mask_targets = torch.zeros(num_points, 36).float()
-        # josie: for 72 points
         mask_targets = torch.zeros(num_points, num_polar).float()
-
+        
         pos_mask_ids = min_area_inds[pos_inds]
         for p,id in zip(pos_inds, pos_mask_ids):
             x, y = points[p]
             pos_mask_contour = mask_contours[id]
+            # SiamPolar: interpolate
+            new_contour = []
+            contour_length = len(pos_mask_contour)
+            for i in range(contour_length):
+                new_contour.append(pos_mask_contour[i])
+                # new_contour.append((3*pos_mask_contour[i]+pos_mask_contour[(i+1)%contour_length])/4)
+                new_contour.append((pos_mask_contour[i]+pos_mask_contour[(i+1)%contour_length])/2)
+                # new_contour.append((pos_mask_contour[i]+3*pos_mask_contour[(i+1)%contour_length])/4)
+            new_pos_mask_contour = torch.cat(new_contour, dim=0).unsqueeze(1)
+            # print(pos_mask_contour.size())
+            # print(new_pos_mask_contour.size())
+            # print(new_pos_mask_contour)
+            # exit()
 
-            # dists, coords = self.get_36_coordinates(x, y, pos_mask_contour)
-            # josie: for 72 points
-            dists, coords = self.get_coordinates(x, y, pos_mask_contour, num_polar)
+            dists, coords = self.get_coordinates(x, y, new_pos_mask_contour, num_polar)
             mask_targets[p] = dists
-
+        
         return labels, bbox_targets, mask_targets
 
     def get_coordinates(self, c_x, c_y, pos_mask_contour, num_polar):
@@ -472,6 +471,19 @@ class DAVIS_Seg_Dataset(Coco_Seg_Dataset):
                 new_coordinate[i] = d
             elif i - 3 in angle:
                 d = dist[angle == i-3].max()
+                new_coordinate[i] = d
+            # josie.add
+            elif i + 4 in angle:
+                d = dist[angle == i+4].max()
+                new_coordinate[i] = d
+            elif i - 4 in angle:
+                d = dist[angle == i-4].max()
+                new_coordinate[i] = d
+            elif i + 5 in angle:
+                d = dist[angle == i+5].max()
+                new_coordinate[i] = d
+            elif i - 5 in angle:
+                d = dist[angle == i-5].max()
                 new_coordinate[i] = d
 
         distances = torch.zeros(num_polar)

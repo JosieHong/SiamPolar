@@ -2,7 +2,7 @@
 @Author: JosieHong
 @Date: 2020-06-06 21:51:27
 @LastEditAuthor: JosieHong
-@LastEditTime: 2020-06-25 18:02:37
+@LastEditTime: 2020-07-31 12:26:07
 '''
 import torch.nn as nn
 import torch.nn.functional as F
@@ -61,7 +61,6 @@ class SemiFPN(nn.Module):
                 norm_cfg=norm_cfg,
                 activation=self.activation,
                 inplace=False)
-
             self.lateral_convs.append(l_conv)
 
         # add extra conv layers (e.g., RetinaNet)
@@ -82,12 +81,17 @@ class SemiFPN(nn.Module):
     @auto_fp16()
     def forward(self, inputs):
         assert len(inputs) == len(self.in_channels)
+        # inputs:
+        # torch.Size([8, 256, 64, 64])
+        # torch.Size([8, 512, 32, 32])
+        # torch.Size([8, 1024, 16, 16])
+        # torch.Size([8, 2048, 8, 8])
         laterals = [
             lateral_conv(inputs[i + self.start_level])
             for i, lateral_conv in enumerate(self.lateral_convs)
         ]
         used_backbone_levels = len(laterals)
-        for i in range(used_backbone_levels - 1, 0, -1):
+        for i in range(used_backbone_levels-1, 0, -1):
             laterals[i - 1] += F.interpolate(
                 laterals[i], size=laterals[i-1].size()[2:], mode='nearest')
 
@@ -114,5 +118,26 @@ class SemiFPN(nn.Module):
                     else:
                         outs.append(outs[-1])
         
+        # num_outs = 3
+        # torch.Size([8, 256, 32, 32])
+        # torch.Size([8, 256, 16, 16])
+        # torch.Size([8, 256, 8, 8])
+
+        # num_outs = 4
+        # torch.Size([8, 256, 32, 32])
+        # torch.Size([8, 256, 16, 16])
+        # torch.Size([8, 256, 8, 8])
+        # torch.Size([8, 256, 4, 4])
+
+        # # part 3: from bottom to top
+        # reverses = [
+        #     F.avg_pool2d(outs[i], kernel_size=1, stride=2) for i in range(len(outs)-1)
+        # ]
+        # for i in range(1, self.num_outs):
+        #     outs[i] = outs[i] + reverses[i-1]
+        
+        # for out in outs:
+        #     print(out.size())
+        # exit()
         return tuple(outs)
 
