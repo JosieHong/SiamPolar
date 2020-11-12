@@ -4,23 +4,17 @@ This is the official code of SiamPolar based on [mmdetection](https://github.com
 
 Paper: [SiamPolar: Realtime Video Object Segmentation with Polar Representation in Traffic Scene](). 
 
-![siam_polarmask_pipeline](./imgs/siam_polarmask_pipeline.png)
+<img src="./imgs/siam_polarmask_pipeline.png" alt="siam_polarmask_pipeline" style="zoom: 33%;" />
 
 ## Highlights
 
 - **Improved polar representation**: We introduce a novel polar representation for video object segmentation and propose a real-time video object segmentation method named SiamPolar, which is an anchor-free object tracking method.
 - **Asymmetric Siamese network**: An asymmetric Siamese network is developed using similar backbones with different depths, which not only alleviates antagonism among the branches of polar head, but also allows the siamese network to perform better with deeper backbones.
-- **Peeling convolutions**: Negative effects exist among the branches of polar head, so we design repeated cross correlation and semi-FPN based on the idea of peeling convolutions. Redundant anti-features can be reduced without convolutions. As a result, the mutual influence between each branch feature can be decreased.
+- **Peeling convolutions**: Negative effects exist among the branches of polar head, so we design repeated cross correlation and semi-FPN based on the idea of peeling convolutions. Redundant anti-features can be reduced without convolutions. As a result, the mutual influence between each branch feature can be decreased. 
 
-## Performances
+## Performances on DAVIS2016
 
-**Visualization on TSD-max dataset (truck, car) and DAVIS-2016 (goat, paragliding-launch)**
-
-![vis](./imgs/vis.png)
-
-**Results on DAVIS-2016**
-
-| Methods   | $J_M$    | $J_R$    | $J_D$   | $F_D$    | $F_R$    | $F_D$   | Speed     |
+| Methods   | J_M​      | J_R​      | J_D​     | F_D​      | F_R​      | F_D​     | Speed     |
 | --------- | -------- | -------- | ------- | -------- | -------- | ------- | --------- |
 | SiamMask  | 71.3     | 86.8     | 3.0     | **67.8** | **79.8** | **2.1** | 55.00     |
 | SiamPolar | **71.4** | **96.2** | **0.7** | 56.7     | 60.0     | 18.1    | **59.20** |
