@@ -1,24 +1,29 @@
-# SiamPolar: Realtime Video Object Segmentation with Polar Representation
+# SiamPolar: Realtime Video Object Segmentation with Polar Representation in Traffic Scenes
 
-This is an implement of SiamPolar on [mmdetection](https://github.com/open-mmlab/mmdetection). 
+This is the official code of SiamPolar based on [mmdetection](https://github.com/open-mmlab/mmdetection). 
+
+Paper: [SiamPolar: Realtime Video Object Segmentation with Polar Representation in Traffic Scene](). 
 
 ![siam_polarmask_pipeline](./imgs/siam_polarmask_pipeline.png)
 
-Figure1.SiamPolar
-
 ## Highlights
 
-- **Improved Polar Representation**: We introduce the improved polar representation into video object segmentation, and propose a real-time video object segmentation method SiamPolar. At the same time, this is also an anchor-free object tracking method. 
-- **Asymmetric Siamese Network**: Same backbone for the search image and the template image results in the problem of spatial misalignment between the two images. We propose an Asymmetric Siamese Network that uses similar backbones with different depths, which not only improves the problems above but also allows the Siamese Network to use deeper backbones with better performance.
-- **Peeling convolutions**: There are negative effects among the branches in Polar Head, so we design Repeated Cross Correlation and Semi-FPN based on the idea of Peeling Convolutions. Without convolution, redundant anti-features would be reduced. Hence the mutual influence between each branch feature would be weakened. 
+- **Improved polar representation**: We introduce a novel polar representation for video object segmentation and propose a real-time video object segmentation method named SiamPolar, which is an anchor-free object tracking method.
+- **Asymmetric Siamese network**: An asymmetric Siamese network is developed using similar backbones with different depths, which not only alleviates antagonism among the branches of polar head, but also allows the siamese network to perform better with deeper backbones.
+- **Peeling convolutions**: Negative effects exist among the branches of polar head, so we design repeated cross correlation and semi-FPN based on the idea of peeling convolutions. Redundant anti-features can be reduced without convolutions. As a result, the mutual influence between each branch feature can be decreased.
 
 ## Performances
+
+**Visualization on TSD-max dataset (truck, car) and DAVIS-2016 (goat, paragliding-launch)**
 
 ![vis](./imgs/vis.png)
 
 **Results on DAVIS-2016**
 
-![siam_polar_performance](./imgs/siam_polar_performance.png)
+| Methods   | $J_M$    | $J_R$    | $J_D$   | $F_D$    | $F_R$    | $F_D$   | Speed     |
+| --------- | -------- | -------- | ------- | -------- | -------- | ------- | --------- |
+| SiamMask  | 71.3     | 86.8     | 3.0     | **67.8** | **79.8** | **2.1** | 55.00     |
+| SiamPolar | **71.4** | **96.2** | **0.7** | 56.7     | 60.0     | 18.1    | **59.20** |
 
 ## Setup Environment
 
