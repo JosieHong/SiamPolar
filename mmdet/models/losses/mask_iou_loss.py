@@ -1,3 +1,9 @@
+'''
+Author: JosieHong
+Date: 2020-05-06 00:42:46
+LastEditAuthor: JosieHong
+LastEditTime: 2021-01-12 17:26:35
+'''
 import torch.nn as nn
 import torch.nn.functional as F
 
@@ -9,8 +15,9 @@ import torch
 
 @LOSSES.register_module
 class MaskIOULoss(nn.Module):
-    def __init__(self):
+    def __init__(self, loss_weight=1.0):
         super(MaskIOULoss, self).__init__()
+        self.loss_weight = loss_weight
 
     def forward(self, pred, target, weight, avg_factor=None):
         '''
@@ -26,7 +33,7 @@ class MaskIOULoss(nn.Module):
         loss = (l_max.sum(dim=1) / l_min.sum(dim=1)).log()
         loss = loss * weight
         loss = loss.sum() / avg_factor
-        return loss
+        return self.loss_weight * loss
 
 
 

@@ -2,23 +2,16 @@
 @Author: JosieHong
 @Date: 2020-04-26 14:50:14
 @LastEditAuthor: JosieHong
-@LastEditTime: 2020-06-18 00:07:49
+LastEditTime: 2021-01-12 17:43:17
 '''
 from ..registry import DETECTORS
 from .single_stage import SingleStageDetector
-import torch.nn as nn
 
-from mmdet.core import auto_fp16, bbox2result, bbox_mask2result
-from .. import builder
-from ..registry import DETECTORS
-from .base import BaseDetector
-from IPython import embed
-import time
-import torch
+from mmdet.core import auto_fp16, bbox_mask2result
 
 
 @DETECTORS.register_module
-class SiamPolarMask(SingleStageDetector):
+class SiamPolar(SingleStageDetector):
 
     def __init__(self,
                  backbone,
@@ -27,20 +20,14 @@ class SiamPolarMask(SingleStageDetector):
                  train_cfg=None,
                  test_cfg=None,
                  pretrained=None):
-        super(SiamPolarMask, self).__init__(backbone, neck, bbox_head, train_cfg,
+        super(SiamPolar, self).__init__(backbone, neck, bbox_head, train_cfg,
                                    test_cfg, pretrained)
 
     def extract_feat(self, img, img_refer):
         x = self.backbone(img, img_refer)
-        x_4refine = x
-        # SiamPoalr Detector:
-        #     torch.Size([4, 256, 64, 64])
-        #     torch.Size([4, 512, 32, 32])
-        #     torch.Size([4, 1024, 16, 16])
-        #     torch.Size([4, 2048, 8, 8])
         if self.with_neck:
             x = self.neck(x)
-        return x, x_4refine
+        return x
 
     def forward_train(self,
                       img,
@@ -62,8 +49,8 @@ class SiamPolarMask(SingleStageDetector):
         else:
             extra_data = None
 
-        x, x_4refine = self.extract_feat(img, img_refer)
-        outs = self.bbox_head(x, x_4refine)
+        x = self.extract_feat(img, img_refer)
+        outs = self.bbox_head(x)
         loss_inputs = outs + (gt_bboxes, gt_labels, img_metas, self.train_cfg)
         
         losses = self.bbox_head.loss(
@@ -95,8 +82,8 @@ class SiamPolarMask(SingleStageDetector):
             return self.aug_test(imgs, img_metas, img_refers, rescale)
 
     def simple_test(self, img, img_meta, img_refer, rescale=False):
-        x, x_4refine = self.extract_feat(img, img_refer)
-        outs = self.bbox_head(x, x_4refine)
+        x = self.extract_feat(img, img_refer)
+        outs = self.bbox_head(x)
 
         bbox_inputs = outs + (img_meta, self.test_cfg, rescale)
         bbox_list = self.bbox_head.get_bboxes(*bbox_inputs)

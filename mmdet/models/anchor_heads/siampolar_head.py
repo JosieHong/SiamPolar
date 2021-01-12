@@ -1,19 +1,14 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 from mmcv.cnn import normal_init
 
-from mmdet.core import distance2bbox, force_fp32, multi_apply, multiclass_nms, multiclass_nms_with_mask
+from mmdet.core import distance2bbox, force_fp32, multi_apply, multiclass_nms_with_mask
 from mmdet.ops import ModulatedDeformConvPack
 
 from ..builder import build_loss
 from ..registry import HEADS
 from ..utils import ConvModule, Scale, bias_init_with_prob, build_norm_layer
-from IPython import embed
-import cv2
-import numpy as np
 import math
-import time
 
 INF = 1e8
 
@@ -169,7 +164,7 @@ class SiamPolar_Head(nn.Module):
         self.scales_mask = nn.ModuleList([Scale(1.0) for _ in self.strides])
 
         self.mask_refine = nn.ModuleDict()
-        refine_channels = ['512', '1024', '2048']
+        refine_channels = ['256', '512', '1024', '2048']
         assert len(refine_channels) == len(self.scales_mask)
         for i in range(len(refine_channels)):
             self.mask_refine[refine_channels[i]] = nn.Conv2d(int(refine_channels[i]), self.feat_channels, 1)
@@ -191,17 +186,10 @@ class SiamPolar_Head(nn.Module):
         normal_init(self.polar_mask, std=0.01)
         normal_init(self.polar_centerness, std=0.01)
 
-    def forward(self, feats, x_4refines):
-        x_4refines = x_4refines[-len(self.scales_mask):] # discard some redidual featuress
-        # print("forward feats")
-        # for out in feats:
-        #     print(out.size())
-        # print("forward x_4refines")
-        # for out in x_4refines:
-        #     print(out.size())
-        return multi_apply(self.forward_single, feats, x_4refines, self.scales_bbox, self.scales_mask)
+    def forward(self, feats):
+        return multi_apply(self.forward_single, feats, self.scales_bbox, self.scales_mask)
 
-    def forward_single(self, x, x_4refine, scale_bbox, scale_mask):
+    def forward_single(self, x, scale_bbox, scale_mask):
         cls_feat = x
         reg_feat = x
         mask_feat = x
@@ -216,15 +204,6 @@ class SiamPolar_Head(nn.Module):
         # scale the bbox_pred of different level
         # float to avoid overflow when enabling FP16
         bbox_pred = scale_bbox(self.polar_reg(reg_feat)).float().exp()
-
-        # josie.debug
-        # print("single_forward")
-        # print("mask_feat size\n\t", mask_feat.size())
-        # print("x_4refine size\n\t", x_4refine.size())
-
-        # # refinement mask branch
-        # x_4refine = self.mask_refine[str(x_4refine.size()[1])](x_4refine)
-        # mask_feat = F.relu(mask_feat + x_4refine)
         
         for mask_layer in self.mask_convs:
             mask_feat = mask_layer(mask_feat)
@@ -248,10 +227,6 @@ class SiamPolar_Head(nn.Module):
         assert len(cls_scores) == len(bbox_preds) == len(centernesses) == len(mask_preds)
         featmap_sizes = [featmap.size()[-2:] for featmap in cls_scores]
 
-        # josie.2020.6.16
-        # print("siampolar_head featmap_sizes: ", featmap_sizes)
-        # featmap_sizes:  [torch.Size([32, 32]), torch.Size([16, 16]), torch.Size([8, 8])]
-        
         all_level_points = self.get_points(featmap_sizes, bbox_preds[0].dtype,
                                            bbox_preds[0].device)
 

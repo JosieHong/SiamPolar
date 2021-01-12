@@ -1,3 +1,9 @@
+<!--
+ * @Author: JosieHong
+ * @Date: 2020-05-06 00:47:57
+ * @LastEditAuthor: JosieHong
+ * @LastEditTime: 2021-01-12 17:18:43
+-->
 # SiamPolar: Realtime Video Object Segmentation with Polar Representation in Traffic Scenes
 
 This is the official code of SiamPolar based on [mmdetection](https://github.com/open-mmlab/mmdetection). 
@@ -24,13 +30,13 @@ Paper: [SiamPolar: Realtime Video Object Segmentation with Polar Representation 
 SiamPolar is implemented on [mmdetection](https://github.com/open-mmlab/mmdetection). It can be installed easily as following, and more details can be seen in `./INSTALL.md`.
 
 ```shell
-git clone ...
+git clone https://github.com/JosieHong/SiamPolar.git
 cd SiamPolar
 conda create -n open_mmlab python=3.7 -y
-source activate open_mmlab
+conda activate open_mmlab
 
 pip install --upgrade pip
-pip install cython torch==1.4.0 torchvision==0.5.0 mmcv
+pip install torch==1.4.0 torchvision==0.5.0 mmcv==0.4.3
 pip install -r requirements.txt # ignore the errors
 pip install "git+https://github.com/cocodataset/cocoapi.git#subdirectory=PythonAPI"
 
@@ -62,13 +68,13 @@ SiamPolar
 
 ## Train & Test
 
-It can be trained and test as other mmdetection models. For more details, you can read [mmdetection-manual](https://mmdetection.readthedocs.io/en/latest/INSTALL.html) and [mmcv-manual](https://mmcv.readthedocs.io/en/latest/image.html). This is an example of SiamPolarMask(ResNet50 Backbone). 
+It can be trained and test as other mmdetection models. For more details, you can read [mmdetection-manual](https://mmdetection.readthedocs.io/en/latest/INSTALL.html) and [mmcv-manual](https://mmcv.readthedocs.io/en/latest/image.html). This is an example of SiamPolarMask(ResNet101 Backbone). 
 
 ```shell
 python tools/train.py ./configs/siampolar/siampolar_r101.py --gpus 1
 
-python tools/test.py ./configs/siampolar/siampolar_r101.py \./work_dirs/siam_polarmask_r50/epoch_12.pth \
---out ./work_dirs/siam_polarmask_r50/res.pkl \
+python tools/test.py ./configs/siampolar/siampolar_r101.py ./work_dirs/siam_polarmask_r50/epoch_12.pth \
+--out ./work_dirs/siam_polarmask_r101/res.pkl \
 --eval vos
 ```
 

@@ -2,7 +2,7 @@
 @Author: open-mmlab, xieenze
 @Date: 2020-04-22 15:08:49
 @LastEditAuthor: JosieHong
-LastEditTime: 2020-08-24 20:27:46
+LastEditTime: 2021-01-12 17:20:12
 '''
 from .base import BaseDetector
 from .cascade_rcnn import CascadeRCNN
@@ -19,10 +19,10 @@ from .rpn import RPN
 from .single_stage import SingleStageDetector
 from .two_stage import TwoStageDetector
 from .polarmask import PolarMask
-from .siampolar import SiamPolarMask
+from .siampolar import SiamPolar
 __all__ = [
     'BaseDetector', 'SingleStageDetector', 'TwoStageDetector', 'RPN',
     'FastRCNN', 'FasterRCNN', 'MaskRCNN', 'CascadeRCNN', 'HybridTaskCascade',
     'DoubleHeadRCNN', 'RetinaNet', 'FCOS', 'GridRCNN', 'MaskScoringRCNN', 
-    'PolarMask', 'SiamPolarMask'
+    'PolarMask', 'SiamPolar'
 ]

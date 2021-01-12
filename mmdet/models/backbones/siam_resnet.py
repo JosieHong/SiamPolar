@@ -2,7 +2,7 @@
 @Author: JosieHong
 @Date: 2020-06-16 10:21:50
 @LastEditAuthor: JosieHong
-@LastEditTime: 2020-07-11 22:48:15
+LastEditTime: 2021-01-12 16:59:56
 '''
 
 import math
@@ -17,7 +17,7 @@ from ..registry import BACKBONES
 from mmcv.cnn import constant_init, kaiming_init
 from mmcv.runner import load_checkpoint
 from .resnet import ResNet, Bottleneck, BasicBlock
-from .attention import PAM_Module, CAM_Module
+# from .attention import PAM_Module, CAM_Module
 # from .resnet_ci import ResNet_CI, Bottleneck_CI
 # from .resnext import ResNeXt
 # from .vgg import vgg16
