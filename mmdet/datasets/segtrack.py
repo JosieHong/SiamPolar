@@ -2,7 +2,7 @@
 @Author: JosieHong
 @Date: 2020-04-26 12:40:11
 @LastEditAuthor: JosieHong
-LastEditTime: 2021-01-12 22:52:02
+LastEditTime: 2021-01-13 16:26:06
 '''
 import os.path as osp
 import warnings
@@ -18,11 +18,9 @@ from .registry import DATASETS
 from .coco_seg import Coco_Seg_Dataset, INF
 
 @DATASETS.register_module
-class TSD_MAX_Seg_Dataset(Coco_Seg_Dataset):
+class SegTrack_Dataset(Coco_Seg_Dataset):
 
-    CLASSES = ('Section8', 'Section6', 'Section63', 'Section33', 'Section11',
-                'Section2', 'Section48', 'Section13', 'Section64', 'Section4',
-                'Section75')
+    CLASSES = ('cheetah', 'birdfall2', 'parachute', 'girl', 'penguin', 'monkeydog')
                 
     def __init__(self,
                  ann_file,
@@ -51,7 +49,7 @@ class TSD_MAX_Seg_Dataset(Coco_Seg_Dataset):
                  strides=[8, 16, 32, 64, 128],
                  regress_ranges=[(-1, 64), (64, 128), 
                             (128, 256), (256, 512), (512, 1e8)]):
-        super(TSD_MAX_Seg_Dataset, self).__init__(ann_file,
+        super(SegTrack_Dataset, self).__init__(ann_file,
                                                 img_prefix,
                                                 img_scale,
                                                 img_norm_cfg,

@@ -2,12 +2,10 @@
 @Author: JosieHong
 @Date: 2020-04-26 12:40:11
 @LastEditAuthor: JosieHong
-@LastEditTime: 2020-07-29 18:04:13
+LastEditTime: 2021-01-12 22:51:51
 '''
-
 import os.path as osp
 import warnings
-import math
 
 import mmcv
 import numpy as np
@@ -370,7 +368,7 @@ class DAVIS_Seg_Dataset(Coco_Seg_Dataset):
         # 把mask_centers assign到不同的层上,根据regress_range和重心的位置
         mask_centers = mask_centers[None].expand(num_points, num_gts, 2)
 
-        #-------------------------------------------------------------------------------------------------------------------------------------------------------------
+        #---------------------------------------------------------------------------
         # condition1: inside a gt bbox
         # add center sample
         if self.center_sample:

@@ -2,26 +2,16 @@
 @Author: JosieHong
 @Date: 2020-06-16 10:21:50
 @LastEditAuthor: JosieHong
-LastEditTime: 2021-01-12 16:59:56
+LastEditTime: 2021-01-12 17:47:19
 '''
-
-import math
-import logging
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.nn.modules.batchnorm import _BatchNorm
 
 from ..registry import BACKBONES
 from mmcv.cnn import constant_init, kaiming_init
-from mmcv.runner import load_checkpoint
-from .resnet import ResNet, Bottleneck, BasicBlock
-# from .attention import PAM_Module, CAM_Module
-# from .resnet_ci import ResNet_CI, Bottleneck_CI
-# from .resnext import ResNeXt
-# from .vgg import vgg16
-# from .sknet import SKNet
+from .resnet import ResNet
+
 
 @BACKBONES.register_module
 class SiamResNet(nn.Module):
@@ -89,21 +79,6 @@ class SiamResNet(nn.Module):
                                         stage_with_gen_attention,
                                         with_cp,
                                         zero_init_residual)
-        
-        # # Position Attention & Channel Attention
-        # self.attention_blocks = [attention_block-2 
-        #                             for attention_block in attention_blocks]
-        # in_channels = [256, 512, 1024, 2048] # input channels of block2,3,4,5
-        # self.cams = nn.ModuleList()
-        # self.pams = nn.ModuleList()
-        # self.alfas = nn.ParameterList()
-        # self.betas = nn.ParameterList()
-        # for correlation_block in self.attention_blocks:
-        #     self.cams.append(CAM_Module(in_channels[correlation_block]))
-        #     self.pams.append(PAM_Module(in_channels[correlation_block]))
-        #     self.alfas.append(nn.Parameter(torch.zeros(1)))
-        #     self.betas.append(nn.Parameter(torch.zeros(1)))
-            
         # Cross Correlation
         self.correlation_blocks = [correlation_block-2 
                                     for correlation_block in correlation_blocks] # start from block2
@@ -122,23 +97,12 @@ class SiamResNet(nn.Module):
             block2, block3, block4, block5 (embedding_search + match_map) 
                 (torch.Tensor): Usually the shape is [].
         """
-        # print("x1: \n\t", x1.size())
-        # print("x2: \n\t", x2.size())
 
         # extract features
         search_blocks = self.search_backbone(x1)
         template_blocks = self.template_backbone(x2)
         # init outs
         outs = [search_block for search_block in search_blocks]
-
-        # print("template backbone:")
-        # for out in template_blocks:
-        #     print('\t', out.size())
-
-        # print("search backbone:")
-        # for out in search_blocks:
-        #     print('\t', out.size())
-        # exit()
 
         # re-cross correlation
         for correlation_block in self.correlation_blocks:
@@ -152,19 +116,6 @@ class SiamResNet(nn.Module):
             match_map = match_map.repeat(1, embedding_template.size()[1], 1, 1)
             corr_value = self.softmax(match_map)*embedding_search
             outs[correlation_block] =  self.gama*corr_value + embedding_search
-            # print("repeat_match_map: ", repeat_match_map.size())
-            # print("embedding_reference: ", embedding_reference.size())
-
-        # # dual attention
-        # for i, attention_block in enumerate(self.attention_blocks):
-        #     embedding_search = outs[attention_block]
-
-        #     # position attention
-        #     pa_value = self.pams[i](embedding_search)
-        #     # channel attention
-        #     ca_value = self.cams[i](embedding_search)
-            
-        #     outs[attention_block] =  self.alfas[i]*pa_value + self.betas[i]*ca_value + embedding_search
         
         return tuple(outs)
     
