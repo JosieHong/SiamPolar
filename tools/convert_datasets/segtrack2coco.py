@@ -2,7 +2,7 @@
 Author: JosieHong
 Date: 2021-01-12 22:13:28
 LastEditAuthor: JosieHong
-LastEditTime: 2021-01-13 16:27:44
+LastEditTime: 2021-01-15 23:14:02
 '''
 from __future__ import division
 from __future__ import print_function
@@ -85,7 +85,7 @@ class SegTrack():
 
             segmentation, bbox, area = self.__get_annotation__(mask, img)
             images.append({"date_captured" : "2016",
-                           "file_name" : impath[1:], # remove "/"
+                           "file_name" : impath, 
                            "id" : imId+1,
                            "license" : 1,
                            "url" : "",

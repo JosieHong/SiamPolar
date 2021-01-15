@@ -2,7 +2,7 @@
 @Author: JosieHong
 @Date: 2020-04-26 12:40:11
 @LastEditAuthor: JosieHong
-LastEditTime: 2021-01-13 16:26:06
+LastEditTime: 2021-01-15 23:15:12
 '''
 import os.path as osp
 import warnings
@@ -79,7 +79,7 @@ class SegTrack_Dataset(Coco_Seg_Dataset):
 
     def prepare_train_img(self, idx):
         img_info = self.img_infos[idx]
-        img = mmcv.imread(osp.join(self.img_prefix[:-11], img_info['filename']))
+        img = mmcv.imread(osp.join(self.img_prefix, img_info['filename']))
         # corruption
         if self.corruption is not None:
             img = corrupt(
@@ -129,7 +129,7 @@ class SegTrack_Dataset(Coco_Seg_Dataset):
         first_frame_idx = img_info["first_frame"]
         refer_info = self.img_infos[first_frame_idx]
         refer_ann = self.get_ann_info(first_frame_idx)
-        img_refer = mmcv.imread(osp.join(self.img_prefix[:-11], refer_info['filename']))
+        img_refer = mmcv.imread(osp.join(self.img_prefix, refer_info['filename']))
         # crop the bbox
         img_refer = torch.squeeze(torch.Tensor(mmcv.imcrop(img_refer, refer_ann["bboxes"])))
         # resize to refer_scale
@@ -226,7 +226,7 @@ class SegTrack_Dataset(Coco_Seg_Dataset):
     def prepare_test_img(self, idx):
         """Prepare an image for testing (multi-scale and flipping)"""
         img_info = self.img_infos[idx]
-        img = mmcv.imread(osp.join(self.img_prefix[:-11], img_info['filename']))
+        img = mmcv.imread(osp.join(self.img_prefix, img_info['filename']))
         # corruption
         if self.corruption is not None:
             img = corrupt(
@@ -247,7 +247,7 @@ class SegTrack_Dataset(Coco_Seg_Dataset):
         first_frame_idx = img_info["first_frame"]
         refer_info = self.img_infos[first_frame_idx]
         refer_ann = self.get_ann_info(first_frame_idx)
-        img_refer = mmcv.imread(osp.join(self.img_prefix[:-11], refer_info['filename']))
+        img_refer = mmcv.imread(osp.join(self.img_prefix, refer_info['filename']))
         # crop the bbox
         img_refer = torch.squeeze(torch.Tensor(mmcv.imcrop(img_refer, refer_ann["bboxes"])))
         # resize to refer_scale

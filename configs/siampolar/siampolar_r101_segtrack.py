@@ -1,7 +1,7 @@
 '''
 @Author: JosieHong
 @Date: 2020-05-05 00:47:49
-LastEditTime: 2021-01-13 16:23:41
+LastEditTime: 2021-01-15 03:25:12
 '''
 
 # model settings
@@ -74,7 +74,7 @@ data = dict(
     workers_per_gpu=5,
     train=dict(
         type=dataset_type,
-        ann_file=data_root + '480p_val.json',
+        ann_file=data_root + 'val.json',
         img_prefix=data_root,
         img_scale=(255, 255), # original size
         img_norm_cfg=img_norm_cfg,
@@ -91,7 +91,7 @@ data = dict(
         regress_ranges=[(-1, 256), (256, 1024), (1024, 2048), (2048, 1e8)]),
     val=dict(
         type=dataset_type,
-        ann_file=data_root + '480p_val.json',
+        ann_file=data_root + 'val.json',
         img_prefix=data_root,
         img_scale=(255, 255),
         img_norm_cfg=img_norm_cfg,
@@ -105,7 +105,7 @@ data = dict(
         resize_keep_ratio=False),
     test=dict(
         type=dataset_type,
-        ann_file=data_root + '480p_val.json',
+        ann_file=data_root + 'val.json',
         img_prefix=data_root,
         img_scale=(255, 255),
         img_norm_cfg=img_norm_cfg,

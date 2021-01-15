@@ -2,7 +2,7 @@
  * @Author: JosieHong
  * @Date: 2020-05-06 00:47:57
  * @LastEditAuthor: JosieHong
- * @LastEditTime: 2021-01-13 16:35:01
+ * @LastEditTime: 2021-01-15 23:03:01
 -->
 # SiamPolar: Realtime Video Object Segmentation with Polar Representation in Traffic Scenes
 
@@ -98,13 +98,13 @@ It can be trained and test as other mmdetection models. For more details, you ca
 python tools/train.py ./configs/siampolar/siampolar_r101.py --gpus 1
 
 # DAVIS2016
-python tools/test.py ./configs/siampolar/siampolar_r101.py ./work_dirs/siam_polarmask_r101/epoch_12.pth \
---out ./work_dirs/siam_polarmask_r101/res.pkl \
+python tools/test.py ./configs/siampolar/siampolar_r101.py ./work_dirs/asy_r101_semi/epoch_12.pth \
+--out ./work_dirs/asy_r101_semi/res.pkl \
 --eval vos
 
 # SegTrack
-python tools/test.py ./configs/siampolar/siampolar_r101_segtrack.py ./work_dirs/siam_polarmask_r101/epoch_12.pth \
---out ./work_dirs/siam_polarmask_r101/res.pkl \
+python tools/test.py ./configs/siampolar/siampolar_r101_segtrack.py ./work_dirs/asy_r101_semi/epoch_36.pth \
+--out ./work_dirs/trash/res.pkl \
 --eval vos
 ```
 
