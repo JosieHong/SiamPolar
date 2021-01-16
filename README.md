@@ -2,7 +2,7 @@
  * @Author: JosieHong
  * @Date: 2020-05-06 00:47:57
  * @LastEditAuthor: JosieHong
- * @LastEditTime: 2021-01-15 23:03:01
+ * @LastEditTime: 2021-01-16 17:25:40
 -->
 # SiamPolar: Realtime Video Object Segmentation with Polar Representation in Traffic Scenes
 
@@ -10,7 +10,10 @@ This is the official code of SiamPolar based on [mmdetection](https://github.com
 
 Paper: [SiamPolar: Realtime Video Object Segmentation with Polar Representation in Traffic Scene](). 
 
-<img src="./imgs/siam_polarmask_pipeline.png" alt="siam_polarmask_pipeline" style="zoom: 33%;" />
+<div align="center">
+	<img src="./imgs/siam_polarmask_pipeline.png" alt="siam_polarmask_pipeline" width="800">
+</div>
+
 
 ## Highlights
 
@@ -27,7 +30,10 @@ Paper: [SiamPolar: Realtime Video Object Segmentation with Polar Representation 
 
 Here is the visualization of performance on DAVIS2016. The blue ones are the results of SiamMask, and the red ones are ours. SiamPolar makes more smooth outline. 
 
-<img src="./imgs/performance.png" alt="performance_on_DAVIS2016" style="zoom: 67%;" />
+<div align="center">
+	<img src="./imgs/performance.png" alt="performance_on_DAVIS2016" width="400">
+</div>
+
 
 ## Setup Environment
 
@@ -52,7 +58,7 @@ python setup.py develop
 
 1. Download DAVIS2016 from [kaggle-DAVIS480p](https://www.kaggle.com/mrjb166/davis480p).
 
-2. Convert DAVIS2016 to coco format by `/tools/conver_datasets/davis2coco.py [path to DAVIS2016 dataset]` and organized it as following: (The files in brackets are not used in SiamPolar.)
+2. Convert DAVIS2016 to COCO format by `/tools/conver_datasets/davis2coco.py [path to DAVIS2016 dataset]` and organized it as following: (The files in brackets are not used in SiamPolar.)
 
 ```shell
 SiamPolar
@@ -80,7 +86,7 @@ SiamPolar
 ## Prepare SegTrack Dataset
 
 1. Download [SegTrack Dataset](http://cpl.cc.gatech.edu/projects/SegTrack/).
-2. Convert it to COCO format: 
+2. Convert SegTrack to COCO format: 
 
 ```bash
 # First thing is that change the file name 'ground_truth' in penguin into 'ground-truth'.
@@ -95,16 +101,22 @@ python tools/convert_datasets/segtrack2coco.py [path to SegTrack dataset]
 It can be trained and test as other mmdetection models. For more details, you can read [mmdetection-manual](https://mmdetection.readthedocs.io/en/latest/INSTALL.html) and [mmcv-manual](https://mmcv.readthedocs.io/en/latest/image.html). This is an example of SiamPolarMask(ResNet101 Backbone). 
 
 ```shell
-python tools/train.py ./configs/siampolar/siampolar_r101.py --gpus 1
-
 # DAVIS2016
-python tools/test.py ./configs/siampolar/siampolar_r101.py ./work_dirs/asy_r101_semi/epoch_12.pth \
---out ./work_dirs/asy_r101_semi/res.pkl \
+python tools/train.py ./configs/siampolar/siampolar_r101.py --gpus 1
+python tools/test.py ./configs/siampolar/siampolar_r101.py ./work_dirs/asy_r101_semi/epoch_36.pth \
+--out ./work_dirs/davis/res.pkl \
+--eval vos
+
+# TSD-max
+python tools/train.py ./configs/siampolar/siampolar_r101_tsd-max.py --gpus 1
+python tools/test.py ./configs/siampolar/siampolar_r101_tsd-max.py ./work_dirs/asy_r101_semi/epoch_36.pth \
+--out ./work_dirs/tsd_max/res.pkl \
 --eval vos
 
 # SegTrack
-python tools/test.py ./configs/siampolar/siampolar_r101_segtrack.py ./work_dirs/asy_r101_semi/epoch_36.pth \
---out ./work_dirs/trash/res.pkl \
+python tools/train.py ./configs/siampolar/siampolar_r101_segtrack.py --gpus 1
+python tools/test.py ./configs/siampolar/siampolar_r101_segtrack.py ./work_dirs/trash/epoch_36.pth \
+--out ./work_dirs/segtrack/res.pkl \
 --eval vos
 ```
 

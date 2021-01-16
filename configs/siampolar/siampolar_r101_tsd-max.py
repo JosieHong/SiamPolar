@@ -1,7 +1,7 @@
 '''
 @Author: JosieHong
 @Date: 2020-05-05 00:47:49
-LastEditTime: 2020-08-16 23:24:05
+LastEditTime: 2021-01-16 17:24:39
 '''
 
 # model settings
@@ -30,7 +30,7 @@ model = dict(
         num_outs=4),
     bbox_head=dict(
         type='SiamPolar_Head',
-        num_classes=120,
+        num_classes=11,
         num_polar=36,
         in_channels=256,
         stacked_convs=4,
@@ -105,7 +105,7 @@ data = dict(
         resize_keep_ratio=False),
     test=dict(
         type=dataset_type,
-        ann_file=data_root + 'Annotations/1080p_test.json',
+        ann_file=data_root + 'Annotations/1080p_val.json',
         img_prefix=data_root + 'JPEGImages',
         img_scale=(255, 255),
         img_norm_cfg=img_norm_cfg,

@@ -1,7 +1,7 @@
 '''
 @Author: JosieHong
 @Date: 2020-05-05 00:47:49
-LastEditTime: 2021-01-16 17:30:40
+LastEditTime: 2021-01-16 15:26:14
 '''
 
 # model settings
@@ -30,7 +30,7 @@ model = dict(
         num_outs=4),
     bbox_head=dict(
         type='SiamPolar_Head',
-        num_classes=6,
+        num_classes=120,
         num_polar=36,
         in_channels=256,
         stacked_convs=4,
@@ -134,7 +134,7 @@ lr_config = dict(
     warmup='linear',
     warmup_iters=500,
     warmup_ratio=1.0 / 3 / lr_ratio,
-    step=[8, 11, 17, 23, 29, 35])
+    step=[8, 11, 17, 23, 29, 35, 41])
 checkpoint_config = dict(interval=1)
 # for training on colab, which doesn't support os.symlink()
 # checkpoint_config = dict(interval=1, create_symlink=False)
@@ -147,11 +147,11 @@ log_config = dict(
     ])
 # yapf:enable
 # runtime settings
-total_epochs = 36
+total_epochs = 48
 device_ids = range(4)
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = './work_dirs/segtrack'
+work_dir = './work_dirs/trash'
 load_from = None
 resume_from = None
 workflow = [('train', 1)]

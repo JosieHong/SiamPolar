@@ -118,7 +118,6 @@ def main():
 
 
 def test():
-    from tqdm import trange
     import cv2
     print('debug mode '*10 )
     args = parse_args()

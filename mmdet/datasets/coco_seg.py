@@ -1,14 +1,7 @@
 from pycocotools.coco import COCO
 import numpy as np
-import skimage.io as io
-import matplotlib.pyplot as plt
-import pylab
 import cv2
 import math
-import Polygon as plg
-from tqdm import tqdm
-
-from pycocotools.coco import COCO
 
 from .custom import CustomDataset
 from .registry import DATASETS
@@ -19,16 +12,10 @@ import mmcv
 import numpy as np
 from imagecorruptions import corrupt
 from mmcv.parallel import DataContainer as DC
-from torch.utils.data import Dataset
 import torch
 
-from .extra_aug import ExtraAugmentation
 from .registry import DATASETS
-from .transforms import (BboxTransform, ImageTransform, MaskTransform,
-                         Numpy2Tensor, SegMapTransform, SegmapTransform)
 from .utils import random_scale, to_tensor
-from IPython import embed
-import time
 
 INF = 1e8
 
@@ -64,7 +51,6 @@ class Coco_Seg_Dataset(CustomDataset):
                'mouse', 'remote', 'keyboard', 'cell_phone', 'microwave',
                'oven', 'toaster', 'sink', 'refrigerator', 'book', 'clock',
                'vase', 'scissors', 'teddy_bear', 'hair_drier', 'toothbrush')
-
 
     def load_annotations(self, ann_file):
         self.coco = COCO(ann_file)

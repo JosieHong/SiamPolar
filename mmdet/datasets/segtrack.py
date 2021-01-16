@@ -2,7 +2,7 @@
 @Author: JosieHong
 @Date: 2020-04-26 12:40:11
 @LastEditAuthor: JosieHong
-LastEditTime: 2021-01-15 23:15:12
+LastEditTime: 2021-01-16 12:43:09
 '''
 import os.path as osp
 import warnings
@@ -76,7 +76,7 @@ class SegTrack_Dataset(Coco_Seg_Dataset):
         self.regress_ranges = regress_ranges
         assert num_polar in [36, 72]
         self.num_polar = num_polar
-
+        
     def prepare_train_img(self, idx):
         img_info = self.img_infos[idx]
         img = mmcv.imread(osp.join(self.img_prefix, img_info['filename']))
