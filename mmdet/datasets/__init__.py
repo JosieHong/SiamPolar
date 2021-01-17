@@ -2,7 +2,7 @@
 @Author: open-mmlab, xieenze
 @Date: 2020-04-22 15:08:37
 @LastEditAuthor: JosieHong
-LastEditTime: 2021-01-15 03:24:03
+LastEditTime: 2021-01-16 18:53:59
 '''
 
 from .builder import build_dataset
@@ -24,6 +24,7 @@ from .coco_seg import Coco_Seg_Dataset
 from .davis import DAVIS_Seg_Dataset
 from .tsd_max import TSD_MAX_Seg_Dataset
 from .segtrack import SegTrack_Dataset
+from .segtrackv2 import SegTrack_v2_Dataset
 
 __all__ = [
     'CustomDataset', 'XMLDataset', 'CocoDataset', 'VOCDataset',
@@ -31,5 +32,5 @@ __all__ = [
     'build_dataloader', 'to_tensor', 'random_scale', 'show_ann',
     'ConcatDataset', 'RepeatDataset', 'ExtraAugmentation', 'WIDERFaceDataset',
     'DATASETS', 'build_dataset', 'Coco_Seg_Dataset', 
-    'DAVIS_Seg_Dataset', 'TSD_MAX_Seg_Dataset', 'SegTrack_Dataset'
+    'DAVIS_Seg_Dataset', 'TSD_MAX_Seg_Dataset', 'SegTrack_Dataset', 'SegTrack_v2_Dataset'
 ]

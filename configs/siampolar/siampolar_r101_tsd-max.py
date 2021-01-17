@@ -1,7 +1,7 @@
 '''
 @Author: JosieHong
 @Date: 2020-05-05 00:47:49
-LastEditTime: 2021-01-16 17:24:39
+LastEditTime: 2021-01-17 02:45:02
 '''
 
 # model settings
@@ -22,7 +22,7 @@ model = dict(
         correlation_blocks=[5], # block index
         # attention_blocks=[2, 3, 4]
         ), 
-    neck=dict(  
+    neck=dict(
         type='SemiFPN',
         in_channels=[256, 512, 1024, 2048],
         out_channels=256,
@@ -123,7 +123,7 @@ lr_ratio = 1
 
 optimizer = dict(
     type='SGD',
-    lr=0.01 * lr_ratio,
+    lr=0.001 * lr_ratio,
     momentum=0.9,
     weight_decay=0.0001,
     paramwise_options=dict(bias_lr_mult=2., bias_decay_mult=0.))
@@ -134,7 +134,7 @@ lr_config = dict(
     warmup='linear',
     warmup_iters=500,
     warmup_ratio=1.0 / 3 / lr_ratio,
-    step=[8, 11, 17, 23, 29, 35, 41])
+    step=[8, 11, 17, 23, 29, 35])
 checkpoint_config = dict(interval=1)
 # for training on colab, which doesn't support os.symlink()
 # checkpoint_config = dict(interval=1, create_symlink=False)
@@ -151,7 +151,7 @@ total_epochs = 36
 device_ids = range(4)
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = './work_dirs/trash'
+work_dir = './work_dirs/tsd_max'
 load_from = None
 resume_from = None
 workflow = [('train', 1)]

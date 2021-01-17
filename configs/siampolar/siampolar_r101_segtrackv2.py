@@ -1,7 +1,7 @@
 '''
 @Author: JosieHong
 @Date: 2020-05-05 00:47:49
-LastEditTime: 2021-01-16 15:26:14
+LastEditTime: 2021-01-16 23:20:05
 '''
 
 # model settings
@@ -30,7 +30,7 @@ model = dict(
         num_outs=4),
     bbox_head=dict(
         type='SiamPolar_Head',
-        num_classes=120,
+        num_classes=15,
         num_polar=36,
         in_channels=256,
         stacked_convs=4,
@@ -65,8 +65,8 @@ test_cfg = dict(
     nms=dict(type='nms', iou_thr=0.5),
     max_per_img=100)
 # dataset settings
-dataset_type = 'SegTrack_Dataset'
-data_root = 'data/SegTrack/'
+dataset_type = 'SegTrack_v2_Dataset'
+data_root = 'data/SegTrackv2/'
 img_norm_cfg = dict(
     mean=[102.9801, 115.9465, 122.7717], std=[1.0, 1.0, 1.0], to_rgb=False)
 data = dict(
@@ -134,7 +134,7 @@ lr_config = dict(
     warmup='linear',
     warmup_iters=500,
     warmup_ratio=1.0 / 3 / lr_ratio,
-    step=[8, 11, 17, 23, 29, 35, 41])
+    step=[8, 11, 17, 23, 29, 35])
 checkpoint_config = dict(interval=1)
 # for training on colab, which doesn't support os.symlink()
 # checkpoint_config = dict(interval=1, create_symlink=False)
@@ -147,11 +147,11 @@ log_config = dict(
     ])
 # yapf:enable
 # runtime settings
-total_epochs = 48
+total_epochs = 36
 device_ids = range(4)
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = './work_dirs/trash'
+work_dir = './work_dirs/segtrackv2'
 load_from = None
 resume_from = None
 workflow = [('train', 1)]

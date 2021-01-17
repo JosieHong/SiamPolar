@@ -2,7 +2,7 @@
 Author: JosieHong
 Date: 2021-01-12 22:13:28
 LastEditAuthor: JosieHong
-LastEditTime: 2021-01-16 19:29:34
+LastEditTime: 2021-01-17 01:02:08
 '''
 from __future__ import division
 from __future__ import print_function
@@ -34,20 +34,20 @@ class SegTrack():
                          }]
         self.type = "instances"
         self.datapath = datapath
+        catpaths = os.listdir(os.path.join(datapath, "JPEGImages"))
+        print(catpaths)
         self.categories = [{"id": seq_id+1, "name": seq_name, "supercategory": seq_name}
-                            for seq_id, seq_name in enumerate(os.listdir(datapath))]
+                            for seq_id, seq_name in enumerate(catpaths)]
         self.cat2id = {cat["name"]: catId+1 for catId, cat in enumerate(self.categories)}
 
         image_set = []
-        for catpath in os.listdir(datapath):
+        for catpath in catpaths:
             imlist = []
-            for impath in os.listdir(os.path.join(datapath, catpath)):
-                if impath == "ground-truth":
-                    continue
-                imlist.append(os.path.join(catpath, impath))
+            for impath in os.listdir(os.path.join(datapath, "JPEGImages", catpath)):
+                imlist.append(os.path.join("JPEGImages", catpath, impath))
             annotlist = []
-            for annotpath in os.listdir(os.path.join(datapath, catpath, "ground-truth")):
-                annotlist.append(os.path.join(catpath, "ground-truth", annotpath))
+            for annotpath in os.listdir(os.path.join(datapath, "GroundTruth", catpath)):
+                annotlist.append(os.path.join("GroundTruth", catpath, annotpath))
             imlist.sort()
             annotlist.sort()
             image_set += zip(imlist, annotlist)
@@ -71,8 +71,8 @@ class SegTrack():
         first_frame = None
         for imId, paths in enumerate(image_set):
             impath, annotpath = paths[0], paths[1]
-            print (impath, annotpath)
-            name = impath.split("/")[0]
+            print(impath, annotpath)
+            name = impath.split("/")[1]
             # get the first frame's id
             if name != flag_name:
                 first_frame = imId+1
@@ -127,6 +127,6 @@ class SegTrack():
         return segmentation, [x, y, w, h], area
 
 if __name__ == "__main__":
-    # datapath = "/data1/datasets/SegTrack"
-    datapath = sys.argv[1]
+    datapath = "/data/dataset/SegTrackv2/"
+    # datapath = sys.argv[1]
     SegTrack(datapath)

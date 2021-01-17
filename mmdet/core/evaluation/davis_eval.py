@@ -4,7 +4,7 @@
             fperazzi/davis(author: federico perazzi)
 @Date: 2020-05-08 12:04:38
 @LastEditAuthor: JosieHong
-LastEditTime: 2021-01-16 17:27:30
+LastEditTime: 2021-01-17 01:23:17
 '''
 import numpy as np
 import time
@@ -146,30 +146,30 @@ class DAVISeval:
         Run evaluation on different functions
         :return: None
         '''
-        # # metrix over all ---------------------------------------------------------------------------
-        # tic = time.time()
-        # self._prepare()
+        # metrix over all ---------------------------------------------------------------------------
+        tic = time.time()
+        self._prepare()
 
-        # annotations = [np.array(anno['segmentation']) for anno in self._gts]
-        # segmentations = [np.array(segm['segmentation']) for segm in self._dts]
+        annotations = [np.array(anno['segmentation']) for anno in self._gts]
+        segmentations = [np.array(segm['segmentation']) for segm in self._dts]
 
-        # for measure in self.measures:
-        #     if measure == 'J':
-        #         J, Jm, Jo, Jd = self._eval(annotations, segmentations, db_eval_iou, measure)
-        #     elif measure=='F':
-        #         F, Fm, Fo, Fd = self._eval(annotations, segmentations, db_eval_boundary, measure)
-        #     # elif measure=='T':
-        #     #     T, Tm, To, Td = self._eval(annotations, segmentations, db_eval_t_stab, measure)
-        #     else:
-        #         raise Exception("Unknown measure=[{}}]. \
-        #             Valid options are measure={J,F,T}".format(measure))
+        for measure in self.measures:
+            if measure == 'J':
+                J, Jm, Jo, Jd = self._eval(annotations, segmentations, db_eval_iou, measure)
+            elif measure=='F':
+                F, Fm, Fo, Fd = self._eval(annotations, segmentations, db_eval_boundary, measure)
+            # elif measure=='T':
+            #     T, Tm, To, Td = self._eval(annotations, segmentations, db_eval_t_stab, measure)
+            else:
+                raise Exception("Unknown measure=[{}}]. \
+                    Valid options are measure={J,F,T}".format(measure))
 
-        # toc = time.time()
-        # print('DONE (t={:0.2f}s).'.format(toc-tic))
+        toc = time.time()
+        print('DONE (t={:0.2f}s).'.format(toc-tic))
 
-        # print('J(M): {}, J(O): {}, J(D): {}'.format(Jm, Jo, Jd))
-        # print('F(M): {}, F(O): {}, F(D): {}'.format(Fm, Fo, Fd))
-        # print('T(M): unfinished')
+        print('J(M): {}, J(O): {}, J(D): {}'.format(Jm, Jo, Jd))
+        print('F(M): {}, F(O): {}, F(D): {}'.format(Fm, Fo, Fd))
+        print('T(M): unfinished')
 
 
         # # metrix per sequence ---------------------------------------------------------------------------
@@ -182,8 +182,7 @@ class DAVISeval:
         # category_dict = {}
         # for i, gt in enumerate(self._gts):
         #     if gt['category_id'] != last_category:
-        #         if last_category != -1:
-        #             category_dict[self._gts[i-1]['category_id']] = [start_frame, self._gts[i-1]['image_id']]
+        #         category_dict[self._gts[i-1]['category_id']] = [start_frame, self._gts[i-1]['image_id']]
         #         start_frame = gt['image_id']
         #         last_category = gt['category_id']
         # print('category_dict: ', category_dict)
@@ -214,38 +213,39 @@ class DAVISeval:
         # print('DONE (t={:0.2f}s).'.format(toc-tic))
 
 
-        # metrix per sequence ---------------------------------------------------------------------------
-        # note: for every category (no shuffle)
-        tic = time.time()
-        self._prepare()
+        # # metrix per sequence ---------------------------------------------------------------------------
+        # # note: for every category (no shuffle)
+        # tic = time.time()
+        # self._prepare()
 
-        last_category = -1
-        start_frame = 0
-        category_dict = {}
-        for i, gt in enumerate(self._gts):
-            if gt['category_id'] != last_category:
-                if last_category != -1:
-                    category_dict[self._gts[i-1]['category_id']] = [start_frame, self._gts[i-1]['image_id']]
-                start_frame = gt['image_id']
-                last_category = gt['category_id']
-        print('category_dict: ', category_dict)
+        # last_category = -1
+        # start_frame = 0
+        # category_dict = {}
+        # for i, gt in enumerate(self._gts):
+        #     if gt['category_id'] != last_category:
+        #         if last_category != -1:
+        #             category_dict[self._gts[i-1]['category_id']] = [start_frame, self._gts[i-1]['image_id']]
+        #         start_frame = gt['image_id']
+        #         last_category = gt['category_id']
+        # print('category_dict: ', category_dict)
 
-        for category in category_dict.keys():
-            start_frame = category_dict[category][0]
-            end_frame = category_dict[category][1]
-            annotations = [np.array(anno['segmentation']) for anno in self._gts[start_frame:end_frame]]
-            segmentations = [np.array(segm['segmentation']) for segm in self._dts[start_frame:end_frame]]
+        # for category in category_dict.keys():
+        #     start_frame = category_dict[category][0]
+        #     end_frame = category_dict[category][1]
+        #     annotations = [np.array(anno['segmentation']) for anno in self._gts[start_frame:end_frame]]
+        #     segmentations = [np.array(segm['segmentation']) for segm in self._dts[start_frame:end_frame]]
 
-            ape = 0
-            for a, s in zip(annotations, segmentations):
-                ape += np.sum(a*s)
-            ape = ape / len(annotations)
+        #     ape = 0
+        #     for a, s in zip(annotations, segmentations):
+        #         ape += np.sum(a) - np.sum(a*s)
+        #     ape = ape / len(annotations)
 
-            print(category)
-            print('APE: ', ape)
+        #     print(category)
+        #     print('APE: ', ape)
 
-        toc = time.time()
-        print('DONE (t={:0.2f}s).'.format(toc-tic))
+        # toc = time.time()
+        # print('DONE (t={:0.2f}s).'.format(toc-tic))
+        
 class Params:
     '''
     Params for davis evaluation api

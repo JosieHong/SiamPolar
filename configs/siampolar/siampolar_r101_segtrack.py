@@ -1,7 +1,7 @@
 '''
 @Author: JosieHong
 @Date: 2020-05-05 00:47:49
-LastEditTime: 2021-01-16 17:30:40
+LastEditTime: 2021-01-16 17:54:14
 '''
 
 # model settings
@@ -30,7 +30,7 @@ model = dict(
         num_outs=4),
     bbox_head=dict(
         type='SiamPolar_Head',
-        num_classes=6,
+        num_classes=7,
         num_polar=36,
         in_channels=256,
         stacked_convs=4,

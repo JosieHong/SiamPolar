@@ -2,7 +2,7 @@
  * @Author: JosieHong
  * @Date: 2020-05-06 00:47:57
  * @LastEditAuthor: JosieHong
- * @LastEditTime: 2021-01-16 17:25:40
+ * @LastEditTime: 2021-01-17 00:40:35
 -->
 # SiamPolar: Realtime Video Object Segmentation with Polar Representation in Traffic Scenes
 
@@ -109,7 +109,7 @@ python tools/test.py ./configs/siampolar/siampolar_r101.py ./work_dirs/asy_r101_
 
 # TSD-max
 python tools/train.py ./configs/siampolar/siampolar_r101_tsd-max.py --gpus 1
-python tools/test.py ./configs/siampolar/siampolar_r101_tsd-max.py ./work_dirs/asy_r101_semi/epoch_36.pth \
+python tools/test.py ./configs/siampolar/siampolar_r101_tsd-max.py ./work_dirs/tsd_max/epoch_36.pth \
 --out ./work_dirs/tsd_max/res.pkl \
 --eval vos
 
@@ -117,6 +117,12 @@ python tools/test.py ./configs/siampolar/siampolar_r101_tsd-max.py ./work_dirs/a
 python tools/train.py ./configs/siampolar/siampolar_r101_segtrack.py --gpus 1
 python tools/test.py ./configs/siampolar/siampolar_r101_segtrack.py ./work_dirs/trash/epoch_36.pth \
 --out ./work_dirs/segtrack/res.pkl \
+--eval vos
+
+# SegTrack v2
+python tools/train.py ./configs/siampolar/siampolar_r101_segtrackv2.py --gpus 1
+python tools/test.py ./configs/siampolar/siampolar_r101_segtrackv2.py ./work_dirs/segtrackv2/epoch_36.pth \
+--out ./work_dirs/segtrackv2/res.pkl \
 --eval vos
 ```
 
