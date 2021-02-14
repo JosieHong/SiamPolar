@@ -42,12 +42,16 @@ SiamPolar is implemented on [mmdetection](https://github.com/open-mmlab/mmdetect
 ```shell
 git clone https://github.com/JosieHong/SiamPolar.git
 cd SiamPolar
+
+# conda environment
 conda create -n open_mmlab python=3.7 -y
 conda activate open_mmlab
+# or virtualenv environment
+virtualenv env
+source env/bin/activate
 
 pip install --upgrade pip
-pip install torch==1.4.0 torchvision==0.5.0 mmcv==0.4.3
-pip install -r requirements.txt # ignore the errors
+pip install -r requirements.txt
 pip install "git+https://github.com/cocodataset/cocoapi.git#subdirectory=PythonAPI"
 
 python setup.py develop
@@ -133,6 +137,8 @@ We also add some configures for SiamPolar like backbone type, polar points numbe
 ```
 cd ./demo
 python visualize_vos.py
+
+python visualize_gen_polar.py [path_to_img_dir] [img_name] [polar_num]
 ```
 
 ## License
