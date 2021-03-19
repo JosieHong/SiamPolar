@@ -267,7 +267,7 @@ class Coco_Seg_Dataset(CustomDataset):
         self.use_mask_center = True
         self.radius = 1.5
         self.strides = [8, 16, 32, 64, 128]
-        self.regress_ranges=((-1, 64), (64, 128), (128, 256), (256, 512),(512, INF))
+        self.regress_ranges=((-1, 64), (64, 128), (128, 256), (256, 512), (512, INF))
         featmap_sizes = self.get_featmap_size(pad_shape)
         self.featmap_sizes = featmap_sizes
         num_levels = len(self.strides)

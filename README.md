@@ -1,9 +1,3 @@
-<!--
- * @Author: JosieHong
- * @Date: 2020-05-06 00:47:57
- * @LastEditAuthor: JosieHong
- * @LastEditTime: 2021-01-17 00:40:35
--->
 # SiamPolar: Realtime Video Object Segmentation with Polar Representation in Traffic Scenes
 
 This is the official code of SiamPolar based on [mmdetection](https://github.com/open-mmlab/mmdetection). 
@@ -43,20 +37,26 @@ SiamPolar is implemented on [mmdetection](https://github.com/open-mmlab/mmdetect
 git clone https://github.com/JosieHong/SiamPolar.git
 cd SiamPolar
 
-# conda environment
+# conda environment (recommend) 
 conda create -n open_mmlab python=3.7 -y
 conda activate open_mmlab
 # or virtualenv environment
-virtualenv env
-source env/bin/activate
+# virtualenv env
+# source env/bin/activate
 
 pip install --upgrade pip
+# Please install a PyTorch version fitting with your version of the CUDA driver 
+# from https://pytorch.org/get-started/locally/
+pip install torch==1.2.0 torchvision==0.4.0 # CUSA 10.0
+pip install torch torchvision torchaudio # CUDA 10.2
 pip install -r requirements.txt
 pip install "git+https://github.com/cocodataset/cocoapi.git#subdirectory=PythonAPI"
 
 python setup.py develop
 # or "pip install -v -e ."
 ```
+
+If `ModuleNotFoundError: No module named 'mmcv.cnn.weight_init'`, please install mmcv 0.4.3 again by `pip install mmcv==0.4.3`.
 
 ## Prepare DAVIS2016 Dataset
 
@@ -102,13 +102,13 @@ python tools/convert_datasets/segtrack2coco.py [path to SegTrack dataset]
 
 ## Train & Test
 
-It can be trained and test as other mmdetection models. For more details, you can read [mmdetection-manual](https://mmdetection.readthedocs.io/en/latest/INSTALL.html) and [mmcv-manual](https://mmcv.readthedocs.io/en/latest/image.html). This is an example of SiamPolarMask(ResNet101 Backbone). 
+It can be trained and test as other mmdetection models. For more details, you can read [mmdetection-manual](https://mmdetection.readthedocs.io/en/latest/INSTALL.html) and [mmcv-manual](https://mmcv.readthedocs.io/en/latest/image.html). This is an example of SiamPolar(ResNet101 Backbone). 
 
 ```shell
 # DAVIS2016
 python tools/train.py ./configs/siampolar/siampolar_r101.py --gpus 1
 python tools/test.py ./configs/siampolar/siampolar_r101.py ./work_dirs/asy_r101_semi/epoch_36.pth \
---out ./work_dirs/davis/res.pkl \
+--out ./work_dirs/asy_r101_semi_center/res.pkl \
 --eval vos
 
 # TSD-max
@@ -119,7 +119,7 @@ python tools/test.py ./configs/siampolar/siampolar_r101_tsd-max.py ./work_dirs/t
 
 # SegTrack
 python tools/train.py ./configs/siampolar/siampolar_r101_segtrack.py --gpus 1
-python tools/test.py ./configs/siampolar/siampolar_r101_segtrack.py ./work_dirs/trash/epoch_36.pth \
+python tools/test.py ./configs/siampolar/siampolar_r101_segtrack.py ./work_dirs/trash/segtrack_model.pth \
 --out ./work_dirs/segtrack/res.pkl \
 --eval vos
 

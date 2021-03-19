@@ -1,7 +1,7 @@
 '''
 @Author: JosieHong
 @Date: 2020-05-05 00:47:49
-@LastEditTime: 2020-07-31 12:25:32
+LastEditTime: 2020-10-17 18:24:12
 '''
 
 # model settings
@@ -36,7 +36,7 @@ model = dict(
         stacked_convs=4,
         feat_channels=256,
         strides=[8, 16, 32, 64],
-        regress_ranges=[(-1, 256), (256, 1024), (1024, 2048), (2048, 1e8)],
+        regress_ranges=[(-1, 256), (256, 512), (512, 1024), (1024, 1e8)],
         loss_cls=dict(
             type='FocalLoss',
             use_sigmoid=True,
@@ -88,7 +88,7 @@ data = dict(
         resize_keep_ratio=False,
         # for semi-FPN
         strides=[8, 16, 32, 64],
-        regress_ranges=[(-1, 256), (256, 1024), (1024, 2048), (2048, 1e8)]),
+        regress_ranges=[(-1, 256), (256, 512), (512, 1024), (1024, 1e8)]),
     val=dict(
         type=dataset_type,
         ann_file=data_root + 'Annotations/480p_val.json',
@@ -147,7 +147,7 @@ log_config = dict(
     ])
 # yapf:enable
 # runtime settings
-total_epochs = 42
+total_epochs = 36
 device_ids = range(4)
 dist_params = dict(backend='nccl')
 log_level = 'INFO'

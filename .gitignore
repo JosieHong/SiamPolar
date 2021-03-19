@@ -40,10 +40,12 @@ data
 *.pkl.json
 *.log.json
 work_dirs/
-trash/
 
 # Pytorch
 *.pth
 
 # environment
 env/
+
+# mask
+*.so
