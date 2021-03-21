@@ -81,6 +81,7 @@ class DAVISeval:
                                             'id': None,
                                             'iscrowd': None}))
             last_img_id = dt['image_id']
+        
 
     def _eval(self, annotations, segmentations, eval_func, measure):
         """ Evaluate all videos.
@@ -149,7 +150,7 @@ class DAVISeval:
         # metrix over all ---------------------------------------------------------------------------
         tic = time.time()
         self._prepare()
-
+        
         annotations = [np.array(anno['segmentation']) for anno in self._gts]
         segmentations = [np.array(segm['segmentation']) for segm in self._dts]
 

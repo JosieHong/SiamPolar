@@ -14,8 +14,8 @@ import matplotlib.pyplot as plt
 from mmdet.apis import init_detector, inference_tracker, show_result
 import mmcv
 
-config_file = '../configs/siam_polarmask/siampolar_r50.py'
-checkpoint_file = '../work_dirs/siam_polarmask_r101/epoch_12.pth'
+config_file = '../configs/siampolar/siampolar_r101.py'
+checkpoint_file = '../work_dirs/trash/epoch_36.pth'
 model = init_detector(config_file, checkpoint_file, device='cuda:0')
 
 imgs = sorted(glob.glob('../data/DAVIS/JPEGImages/480p/car-roundabout/*jpg'))

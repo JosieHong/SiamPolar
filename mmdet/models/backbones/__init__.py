@@ -11,6 +11,7 @@ from .resnext import ResNeXt
 from .ssd_vgg import SSDVGG
 # from .siamese import SiamResNet, SiamResNeXt, AsySiamNet
 from .siam_resnet import SiamResNet
+from .siam_resnet_gcn import SiamResNetGCN
 
 __all__ = ['ResNet', 'make_res_layer', 'ResNeXt', 'SSDVGG', 'HRNet', 
-            'SiamResNet']
+            'SiamResNet', 'SiamResNetGCN']

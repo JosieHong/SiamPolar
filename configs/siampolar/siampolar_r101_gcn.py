@@ -9,7 +9,7 @@ model = dict(
     type='SiamPolar',
     pretrained='open-mmlab://resnet101_caffe',
     backbone=dict(
-        type='SiamResNet',
+        type='SiamResNetGCN',
         depth=101,
         template_depth=50,
         template_pretrained='open-mmlab://resnet50_caffe',
@@ -19,7 +19,7 @@ model = dict(
         frozen_stages=1,
         norm_cfg=dict(type='BN', requires_grad=False),
         style='caffe',
-        correlation_blocks=[5], # block index
+        correlation_blocks=[3, 4, 5], # block index
         # attention_blocks=[2, 3, 4]
         ), 
     neck=dict(  

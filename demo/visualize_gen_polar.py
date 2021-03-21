@@ -9,6 +9,7 @@ Note:
     python visualize_gen_polar.py ../imgs/polar_vis/ 00512c 36 0
     python visualize_gen_polar.py ../imgs/polar_vis/ 00867c 72 0
     python visualize_gen_polar.py ../imgs/polar_vis/ 01583c 36 0
+    python visualize_gen_polar.py ../imgs/polar_vis/ 00068c 24 1
     python visualize_gen_polar.py ../imgs/polar_vis/ bmx_06668 36 0
     python visualize_gen_polar.py ../imgs/polar_vis/ birdfall2_00018 36 0
     python visualize_gen_polar.py ../imgs/polar_vis/ drift_05960 36 0
@@ -151,8 +152,8 @@ pts = []
 for k in coordination.keys():
     ptEnd = (int(center[0]+int(coordination[k])*np.sin(k*np.pi/180)), int(center[1]+int(coordination[k])*np.cos(k*np.pi/180)))
     pts.append(ptEnd)
-    point_color = (0, 140, 255) # BGR 
-    # point_color = (237, 149, 100) # BGR 
+    # point_color = (0, 140, 255) # BGR 
+    point_color = (237, 149, 100) # BGR 
     thickness = 1
     lineType = 4
     # print(center)
@@ -175,8 +176,8 @@ cv2.polylines(img, [pts], True, (224, 255, 255), 2)
 # center
 # cv2.circle(img, center, 3, (224, 255, 255), 4)
 # IoU
-cv2.putText(img,'IoU: {:0.3f}'.format(iou), (50,150), cv2.FONT_HERSHEY_COMPLEX, 3, (0, 140, 255), 6) # Davis
-# cv2.putText(img,'IoU: {:0.3f}'.format(iou), (50,150), cv2.FONT_HERSHEY_COMPLEX, 2, (225, 105, 65), 4) # TSD-max
+# cv2.putText(img,'IoU: {:0.3f}'.format(iou), (50,150), cv2.FONT_HERSHEY_COMPLEX, 3, (0, 140, 255), 6) # Davis
+cv2.putText(img,'IoU: {:0.3f}'.format(iou), (50,150), cv2.FONT_HERSHEY_COMPLEX, 2, (225, 105, 65), 4) # TSD-max
 # cv2.putText(img,'IoU: {:0.3f}'.format(iou), (30,300), cv2.FONT_HERSHEY_COMPLEX, 1.2, (0, 140, 255), 2) # small
 # cv2.putText(img,'IoU: {:0.3f}'.format(iou), (50,1000), cv2.FONT_HERSHEY_COMPLEX, 3, (0, 140, 255), 6) # bottom
 cv2.imwrite(result_path, img)

@@ -1,9 +1,3 @@
-'''
-@Author: JosieHong
-@Date: 2020-06-16 10:21:50
-@LastEditAuthor: JosieHong
-LastEditTime: 2021-01-12 17:47:19
-'''
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -12,9 +6,27 @@ from ..registry import BACKBONES
 from mmcv.cnn import constant_init, kaiming_init
 from .resnet import ResNet
 
+class GCN(nn.Module):
+    def __init__(self, c, out_c, k=7): # out_Channel=21 in paper
+        super(GCN, self).__init__()
+        self.conv_l1 = nn.Conv2d(c, out_c, kernel_size=(k,1), padding=((k-1)//2,0))
+        self.conv_l2 = nn.Conv2d(out_c, out_c, kernel_size=(1,k), padding=(0,(k-1)//2))
+        self.conv_r1 = nn.Conv2d(c, out_c, kernel_size=(1,k), padding=((k-1)//2,0))
+        self.conv_r2 = nn.Conv2d(out_c, out_c, kernel_size=(k,1), padding=(0,(k-1)//2))
+        
+    def forward(self, x):
+        x_l = self.conv_l1(x)
+        x_l = self.conv_l2(x_l)
+        
+        x_r = self.conv_r1(x)
+        x_r = self.conv_r2(x_r)
+        
+        x = x_l + x_r
+        
+        return x
 
 @BACKBONES.register_module
-class SiamResNet(nn.Module):
+class SiamResNetGCN(nn.Module):
     """ This is a simese network using ResNet bacbone and returning every 
     blocks' feature map.
     """
@@ -41,7 +53,7 @@ class SiamResNet(nn.Module):
                  zero_init_residual=True,
                  correlation_blocks=[3, 4, 5],
                  attention_blocks=None):
-        super(SiamResNet, self).__init__()
+        super(SiamResNetGCN, self).__init__()
         self.template_backbone = ResNet(template_depth, 
                                         num_stages,
                                         strides,
@@ -85,7 +97,10 @@ class SiamResNet(nn.Module):
         self.match_batchnorm = nn.BatchNorm2d(1)
         self.softmax = nn.Softmax(dim=1)
         self.gama = nn.Parameter(torch.zeros(1))
-        
+
+        # GCNs
+        self.gcn = nn.ModuleList([GCN(256, 256, k=7), GCN(512, 512, k=7), GCN(1024, 1024, k=7), GCN(2048, 2048, k=7)])
+
     def forward(self, x1, x2): 
         """
         Args:
@@ -102,7 +117,7 @@ class SiamResNet(nn.Module):
         search_blocks = self.search_backbone(x1)
         template_blocks = self.template_backbone(x2)
         # init outs
-        outs = [search_block for search_block in search_blocks]
+        outs = [self.gcn[i](search_block) for i, search_block in enumerate(search_blocks)]
 
         # re-cross correlation
         for correlation_block in self.correlation_blocks:

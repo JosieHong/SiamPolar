@@ -372,8 +372,11 @@ class SiamPolar_Head(nn.Module):
 
     def polar_centerness_target(self, pos_mask_targets):
         # only calculate pos centerness targets, otherwise there may be nan
-        centerness_targets = (pos_mask_targets.min(dim=-1)[0] / pos_mask_targets.max(dim=-1)[0])
-        return torch.sqrt(centerness_targets)
+        # centerness_targets = (pos_mask_targets.min(dim=-1)[0] / pos_mask_targets.max(dim=-1)[0])
+        # return torch.sqrt(centerness_targets)
+        # siampolar
+        centerness_targets = (pos_mask_targets.min(dim=-1)[0] / pos_mask_targets.mean(dim=-1)[0]) + (pos_mask_targets.mean(dim=-1)[0] / pos_mask_targets.max(dim=-1)[0])
+        return torch.sqrt(centerness_targets/2)
 
     @force_fp32(apply_to=('cls_scores', 'bbox_preds', 'centernesses'))
     def get_bboxes(self,

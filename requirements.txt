@@ -1,5 +1,3 @@
-terminaltables
-mmcv==0.4.3
 cython
 decorator
 ipykernel>=4.4
@@ -8,7 +6,7 @@ ipython-genutils
 jupyter-client
 pyzmq>=13
 tornado>=4
-numpy
+numpy==1.17
 traitlets>=4.3
 imageio
 opencv-python

@@ -15,19 +15,12 @@ Paper: [SiamPolar: Realtime Video Object Segmentation with Polar Representation 
 - **Asymmetric Siamese network**: An asymmetric Siamese network is developed using similar backbones with different depths, which not only alleviates antagonism among the branches of polar head, but also allows the siamese network to perform better with deeper backbones.
 - **Peeling convolutions**: Negative effects exist among the branches of polar head, so we design repeated cross correlation and semi-FPN based on the idea of peeling convolutions. Redundant anti-features can be reduced without convolutions. As a result, the mutual influence between each branch feature can be decreased. 
 
-## Performances on DAVIS2016
+## Performances
 
 | Methods   | J_M​      | J_R​      | J_D​     | F_D​      | F_R​      | F_D​     | Speed     |
 | --------- | -------- | -------- | ------- | -------- | -------- | ------- | --------- |
 | SiamMask  | 71.3     | 86.8     | 3.0     | **67.8** | **79.8** | **2.1** | 55.00     |
 | SiamPolar | **71.4** | **96.2** | **0.7** | 56.7     | 60.0     | 18.1    | **59.20** |
-
-Here is the visualization of performance on DAVIS2016. The blue ones are the results of SiamMask, and the red ones are ours. SiamPolar makes more smooth outline. 
-
-<div align="center">
-	<img src="./imgs/performance.png" alt="performance_on_DAVIS2016" width="400">
-</div>
-
 
 ## Setup Environment
 
@@ -87,17 +80,19 @@ SiamPolar
 |  |  |  ├── 480p
 ```
 
-## Prepare SegTrack Dataset
+## Prepare SegTrack / SegTrack v2 Dataset
 
-1. Download [SegTrack Dataset](http://cpl.cc.gatech.edu/projects/SegTrack/).
-2. Convert SegTrack to COCO format: 
+1. Download [SegTrack Dataset](http://cpl.cc.gatech.edu/projects/SegTrack/) / [SegTrack v2](https://web.engr.oregonstate.edu/~lif/SegTrack2/dataset.html).
+2. Convert SegTrack / SegTrack v2 to COCO format: 
 
 ```bash
-# First thing is that change the file name 'ground_truth' in penguin into 'ground-truth'.
+# First, please change the file name 'ground_truth' in penguin into 'ground-truth'.
 
 python tools/convert_datasets/segtrack2coco.py [path to SegTrack dataset]
 # e.g.
 # python tools/convert_datasets/segtrack2coco.py /data1/datasets/SegTrack
+
+python tools/convert_datasets/segtrack2coco_v2.py [path to SegTrack v2 dataset]
 ```
 
 ## Train & Test
@@ -105,10 +100,14 @@ python tools/convert_datasets/segtrack2coco.py [path to SegTrack dataset]
 It can be trained and test as other mmdetection models. For more details, you can read [mmdetection-manual](https://mmdetection.readthedocs.io/en/latest/INSTALL.html) and [mmcv-manual](https://mmcv.readthedocs.io/en/latest/image.html). This is an example of SiamPolar(ResNet101 Backbone). 
 
 ```shell
+python tools/train.py ./configs/siampolar/siampolar_r101_gcn.py --gpus 1 --resume_from ./work_dirs/trash/epoch_2.pth
+python tools/test.py ./configs/siampolar/siampolar_r101_gcn.py ./work_dirs/trash/epoch_36.pth \
+--out ./work_dirs/trash/res.pkl \
+--eval vos
 # DAVIS2016
 python tools/train.py ./configs/siampolar/siampolar_r101.py --gpus 1
 python tools/test.py ./configs/siampolar/siampolar_r101.py ./work_dirs/asy_r101_semi/epoch_36.pth \
---out ./work_dirs/asy_r101_semi_center/res.pkl \
+--out ./work_dirs/trash/res.pkl \
 --eval vos
 
 # TSD-max

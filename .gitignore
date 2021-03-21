@@ -31,21 +31,26 @@ MANIFEST
 # cython generated cpp
 mmdet/ops/nms/src/soft_nms_cpu.cpp
 mmdet/version.py
+*.so
+
+# data
 data
+
+# vscode
 .vscode
-.idea
+
+# imgs
+demo/car-roundabout/
+imgs/polar_vis/
 
 # custom
 *.pkl
 *.pkl.json
 *.log.json
 work_dirs/
+trash/
+*.out
 
 # Pytorch
 *.pth
 
-# environment
-env/
-
-# mask
-*.so
