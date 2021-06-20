@@ -42,6 +42,11 @@ data
 # imgs
 demo/car-roundabout/
 demo/*.out
+demo/README.md
+demo/compute_gen_acc.py
+demo/visualize_gen_polar.py
+demo/new_compute_gen_acc.py
+demo/new_visualize_gen_polar.py
 imgs/polar_vis/
 
 # custom
