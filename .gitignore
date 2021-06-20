@@ -41,6 +41,7 @@ data
 
 # imgs
 demo/car-roundabout/
+demo/*.out
 imgs/polar_vis/
 
 # custom
@@ -54,3 +55,5 @@ trash/
 # Pytorch
 *.pth
 
+# temp output
+*.out

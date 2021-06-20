@@ -1,7 +1,7 @@
 '''
 @Author: JosieHong
 @Date: 2020-05-05 00:47:49
-LastEditTime: 2020-10-17 18:24:12
+LastEditTime: 2021-06-20 15:38:47
 '''
 
 # model settings
@@ -22,7 +22,7 @@ model = dict(
         correlation_blocks=[3, 4, 5], # block index
         # attention_blocks=[2, 3, 4]
         ), 
-    neck=dict(  
+    neck=dict(
         type='SemiFPN',
         in_channels=[256, 512, 1024, 2048],
         out_channels=256,

@@ -1,21 +1,15 @@
 # SiamPolar: Realtime Video Object Segmentation with Polar Representation in Traffic Scenes
 
-This is the official code of SiamPolar based on [mmdetection](https://github.com/open-mmlab/mmdetection). 
-
-Paper: [SiamPolar: Realtime Video Object Segmentation with Polar Representation in Traffic Scene](). 
+This is the code of SiamPolar based on [mmdetection](https://github.com/open-mmlab/mmdetection).  SiamPolar is a semi-supervised real-time video object segmentation method with a novel polar representation method. 
 
 <div align="center">
 	<img src="./imgs/siam_polarmask_pipeline.png" alt="siam_polarmask_pipeline" width="800">
 </div>
+**Feb 14, 2021**: SiamPolar v1.0.
 
+**Jun 15, 2021**: Our paper is accepted by ITSC2021. 
 
-## Highlights
-
-- **Improved polar representation**: We introduce a novel polar representation for video object segmentation and propose a real-time video object segmentation method named SiamPolar, which is an anchor-free object tracking method.
-- **Asymmetric Siamese network**: An asymmetric Siamese network is developed using similar backbones with different depths, which not only alleviates antagonism among the branches of polar head, but also allows the siamese network to perform better with deeper backbones.
-- **Peeling convolutions**: Negative effects exist among the branches of polar head, so we design repeated cross correlation and semi-FPN based on the idea of peeling convolutions. Redundant anti-features can be reduced without convolutions. As a result, the mutual influence between each branch feature can be decreased. 
-
-## Performances
+## Performances on DAVIS2016
 
 | Methods   | J_M​      | J_R​      | J_D​     | F_D​      | F_R​      | F_D​     | Speed     |
 | --------- | -------- | -------- | ------- | -------- | -------- | ------- | --------- |
