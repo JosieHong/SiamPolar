@@ -3,8 +3,11 @@
 This is the code of SiamPolar based on [mmdetection](https://github.com/open-mmlab/mmdetection).  SiamPolar is a semi-supervised real-time video object segmentation method with a novel polar representation method. 
 
 <div align="center">
-	<img src="./imgs/siam_polarmask_pipeline.png" alt="siam_polarmask_pipeline" width="800">
+	<img src="./imgs/siam_polarmask_pipeline.png" alt="siam_polarmask_pipeline" width="600">
 </div>
+
+
+
 **Feb 14, 2021**: SiamPolar v1.0.
 
 **Jun 15, 2021**: Our paper is accepted by ITSC2021. 
