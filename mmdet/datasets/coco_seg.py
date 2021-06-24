@@ -337,7 +337,7 @@ class Coco_Seg_Dataset(CustomDataset):
         regress_ranges = regress_ranges[:, None, :].expand(
             num_points, num_gts, 2)
         gt_bboxes = gt_bboxes[None].expand(num_points, num_gts, 4)
-        #xs ys 分别是points的x y坐标
+        # xs and ys is the x,y-coordinates of points
         xs, ys = points[:, 0], points[:, 1]
         xs = xs[:, None].expand(num_points, num_gts)
         ys = ys[:, None].expand(num_points, num_gts)
@@ -345,16 +345,12 @@ class Coco_Seg_Dataset(CustomDataset):
         right = gt_bboxes[..., 2] - xs
         top = ys - gt_bboxes[..., 1]
         bottom = gt_bboxes[..., 3] - ys
-        bbox_targets = torch.stack((left, top, right, bottom), -1)   #feature map上所有点对于gtbox的上下左右距离 [num_pix, num_gt, 4]
+        bbox_targets = torch.stack((left, top, right, bottom), -1) # [num_pix, num_gt, 4]
 
-
-
-        #mask targets 也按照这种写 同时labels 得从bbox中心修改成mask 重心
+        # mask targets 
         mask_centers = []
         mask_contours = []
-        #第一步 先算重心  return [num_gt, 2]
-
-
+        # calculate the mass center [num_gt, 2]
         for mask in gt_masks:
             cnt, contour = self.get_single_centerpoint(mask)
             contour = contour[0]
@@ -363,12 +359,12 @@ class Coco_Seg_Dataset(CustomDataset):
             mask_centers.append([x,y])
             mask_contours.append(contour)
         mask_centers = torch.Tensor(mask_centers).float()
-        # 把mask_centers assign到不同的层上,根据regress_range和重心的位置
+        # assign the mask_centers into different layers
         mask_centers = mask_centers[None].expand(num_points, num_gts, 2)
 
-        #-------------------------------------------------------------------------------------------------------------------------------------------------------------
+        #----------------------------------------------------------------
         # condition1: inside a gt bbox
-        #加入center sample
+        # center sample
         if self.center_sample:
             strides = [8, 16, 32, 64, 128]
             if self.use_mask_center:
@@ -401,7 +397,7 @@ class Coco_Seg_Dataset(CustomDataset):
         min_area, min_area_inds = areas.min(dim=1)
 
         labels = gt_labels[min_area_inds]
-        labels[min_area == INF] = 0         #[num_gt] 介于0-80
+        labels[min_area == INF] = 0 # [num_gt] range in 0-80
 
         bbox_targets = bbox_targets[range(num_points), min_area_inds]
         pos_inds = labels.nonzero().reshape(-1)
@@ -477,7 +473,7 @@ class Coco_Seg_Dataset(CustomDataset):
         top = gt_ys - center_gt[..., 1]
         bottom = center_gt[..., 3] - gt_ys
         center_bbox = torch.stack((left, top, right, bottom), -1)
-        inside_gt_bbox_mask = center_bbox.min(-1)[0] > 0  # 上下左右都>0 就是在bbox里面
+        inside_gt_bbox_mask = center_bbox.min(-1)[0] > 0  # inside the box
         return inside_gt_bbox_mask
 
     def get_centerpoint(self, lis):
@@ -578,11 +574,3 @@ class Coco_Seg_Dataset(CustomDataset):
                 idx = self._rand_another(idx)
                 continue
             return data
-
-
-
-
-
-
-
-

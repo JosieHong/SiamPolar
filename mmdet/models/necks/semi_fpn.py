@@ -2,7 +2,7 @@
 @Author: JosieHong
 @Date: 2020-06-06 21:51:27
 @LastEditAuthor: JosieHong
-LastEditTime: 2021-01-12 17:48:29
+LastEditTime: 2021-06-20 18:54:00
 '''
 import torch.nn as nn
 import torch.nn.functional as F
@@ -40,7 +40,7 @@ class SemiFPN(nn.Module):
 
         if end_level == -1:
             self.backbone_end_level = self.num_ins
-            assert num_outs >= self.num_ins - start_level
+            # assert num_outs >= self.num_ins - start_level
         else:
             # if end_level < inputs, no extra level is allowed
             self.backbone_end_level = end_level
@@ -118,4 +118,9 @@ class SemiFPN(nn.Module):
                     else:
                         outs.append(outs[-1])
 
+        # output: 
+        # torch.Size([8, 256, 32, 32])
+        # torch.Size([8, 256, 16, 16])
+        # torch.Size([8, 256, 8, 8])
+        # torch.Size([8, 256, 4, 4])
         return tuple(outs)

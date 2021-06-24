@@ -2,7 +2,7 @@
 @Author: JosieHong
 @Date: 2020-06-16 10:21:50
 @LastEditAuthor: JosieHong
-LastEditTime: 2021-01-12 17:47:19
+LastEditTime: 2021-06-24 14:48:59
 '''
 import torch
 import torch.nn as nn
@@ -94,8 +94,8 @@ class SiamResNet(nn.Module):
             x2 (torch.Tensor): The reference patch of dimensions [B, C, H, W].
                 Usually the shape is [4, 3, 127, 127].
         Returns:
-            block2, block3, block4, block5 (embedding_search + match_map) 
-                (torch.Tensor): Usually the shape is [].
+            block2, block3, block4, block5: The outputs of each block, 
+                some are fused with response maps. 
         """
 
         # extract features

@@ -163,11 +163,11 @@ class SiamPolar_Head(nn.Module):
         self.scales_bbox = nn.ModuleList([Scale(1.0) for _ in self.strides])
         self.scales_mask = nn.ModuleList([Scale(1.0) for _ in self.strides])
 
-        self.mask_refine = nn.ModuleDict()
-        refine_channels = ['256', '512', '1024', '2048']
-        assert len(refine_channels) == len(self.scales_mask)
-        for i in range(len(refine_channels)):
-            self.mask_refine[refine_channels[i]] = nn.Conv2d(int(refine_channels[i]), self.feat_channels, 1)
+        # self.mask_refine = nn.ModuleDict()
+        # refine_channels = ['256', '512', '1024', '2048']
+        # assert len(refine_channels) == len(self.scales_mask)
+        # for i in range(len(refine_channels)):
+        #     self.mask_refine[refine_channels[i]] = nn.Conv2d(int(refine_channels[i]), self.feat_channels, 1)
 
     def init_weights(self):
         if not self.use_dcn:
@@ -374,9 +374,12 @@ class SiamPolar_Head(nn.Module):
         # only calculate pos centerness targets, otherwise there may be nan
         # centerness_targets = (pos_mask_targets.min(dim=-1)[0] / pos_mask_targets.max(dim=-1)[0])
         # return torch.sqrt(centerness_targets)
-        # siampolar
+        # siampolar_1
         centerness_targets = (pos_mask_targets.min(dim=-1)[0] / pos_mask_targets.mean(dim=-1)[0]) + (pos_mask_targets.mean(dim=-1)[0] / pos_mask_targets.max(dim=-1)[0])
-        return torch.sqrt(centerness_targets/2)
+        centerness_targets = torch.sqrt(centerness_targets/2)
+        # siampolar_2
+        # centerness_targets = torch.var(pos_mask_targets, unbiased=False)[0]
+        return centerness_targets
 
     @force_fp32(apply_to=('cls_scores', 'bbox_preds', 'centernesses'))
     def get_bboxes(self,

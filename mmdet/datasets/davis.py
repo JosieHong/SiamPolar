@@ -2,10 +2,12 @@
 @Author: JosieHong
 @Date: 2020-04-26 12:40:11
 @LastEditAuthor: JosieHong
-LastEditTime: 2021-01-16 12:23:40
+LastEditTime: 2021-06-24 23:29:49
 '''
 import os.path as osp
 import warnings
+import math
+import cv2
 
 import mmcv
 import numpy as np
@@ -505,3 +507,60 @@ class DAVIS_Seg_Dataset(Coco_Seg_Dataset):
                 idx = self._rand_another(idx)
                 continue
             return data
+
+    def merge_contours(self, contours): 
+        alpha = 0.25
+        
+        # init
+        b = contours[0][:, 0, :]
+        cx, cy = b.mean(axis=0)
+        # guarantee that the threshold is at the same level as the object size
+        # thrx = contours[0][:, 0, :][:, 0].max() - contours[0][:, 0, :][:, 0].min()
+        # thry = contours[0][:, 0, :][:, 1].max() - contours[0][:, 0, :][:, 1].min()
+        records = [0 for i in range(len(contours))]
+        new_contours = [contours[0]]
+        records[0] = 1
+
+        flag = True
+        while (flag == True):
+            flag = False
+            for i in range(1, len(contours)-1): 
+                tmp = contours[i][:, 0, :]
+                tx, ty = tmp.mean(axis=0)
+                if records[i] == 0:
+                    d = math.sqrt((cx - tx) ** 2 + (cy - ty) ** 2)
+                    lx = b[:, 0].max() - b[:, 0].min() + tmp[:, 0].max() - tmp[:, 0].min()
+                    ly = b[:, 1].max() - b[:, 1].min() + tmp[:, 1].max() - tmp[:, 1].min()
+                    l = math.sqrt(lx ** 2 + ly ** 2)
+                    # print("d: {}, l: {}".format(d, l))
+                    if d <= alpha * l:
+                        # print("Add a new contour!")
+                        new_contours.append(contours[i])
+                        records[i] = 1
+                        flag = True
+                        cx = (cx + tx) / 2
+                        cy = (cy + ty) / 2
+                    
+        return new_contours 
+
+    def get_single_centerpoint(self, mask):
+        contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+        contours.sort(key=lambda x: cv2.contourArea(x), reverse=True) # only save the biggest one
+        '''debug IndexError: list index out of range'''
+        if len(contours) == 0:
+            return None, None
+
+        count = contours[0][:, 0, :]
+        try:
+            center = self.get_centerpoint(count)
+        except:
+            x,y = count.mean(axis=0)
+            center = [int(x), int(y)]
+            
+        if len(contours) > 1: 
+            # keep the contours near the biggest contour
+            new_contours = self.merge_contours(contours)
+        else:
+            new_contours = [contours[0]] # the biggest contour
+
+        return center, new_contours

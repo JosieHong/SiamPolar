@@ -1,13 +1,15 @@
 from __future__ import division
 import argparse
 import os
+os.environ['TORCH_HOME']='./torch-model' # the path to save the pretrained models
 
 import torch
 from mmcv import Config
 
 from mmdet import __version__
-from mmdet.apis import (get_root_logger, init_dist, set_random_seed,
+from mmdet.apis import (get_root_logger, set_random_seed,
                         train_detector)
+from mmcv.runner import init_dist
 from mmdet.datasets import build_dataset
 from mmdet.models import build_detector
 

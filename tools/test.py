@@ -2,10 +2,12 @@
 @Author: xieenze
 @Date: 2020-04-22 15:08:28
 @LastEditAuthor: JosieHong
-@LastEditTime: 2020-07-16 15:56:17
+LastEditTime: 2021-06-21 19:08:25
 '''
 import argparse
 import os
+os.environ['TORCH_HOME']='./torch-model' # the path to save the pretrained models
+
 import os.path as osp
 import shutil
 import tempfile
