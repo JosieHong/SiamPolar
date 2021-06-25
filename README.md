@@ -1,25 +1,21 @@
-# SiamPolar: Realtime Video Object Segmentation with Polar Representation in Traffic Scenes
-
-This is the code of SiamPolar based on [mmdetection](https://github.com/open-mmlab/mmdetection).  SiamPolar is a semi-supervised real-time video object segmentation method with a novel polar representation method. 
+# SiamPolar: Realtime Video Object Segmentation with Polar Representation
 
 <div align="center">
 	<img src="./imgs/siam_polarmask_pipeline.png" alt="siam_polarmask_pipeline" width="800">
 </div>
 
 
-**Feb 14, 2021**: SiamPolar v1.0. 
 
-**Jun 15, 2021**: Our paper is accepted by ITSC2021. 
-
-**Jun 24, 2021:** Update SiamPolar-light. 
+- **Feb 14, 2021**: SiamPolar v1.0. 
+- **Jun 15, 2021**: Our paper is accepted by ITSC2021. 
+- **Jun 24, 2021:** Update SiamPolar-light. 
 
 ## Performances on DAVIS2016
 
-| Methods         | J_M​      | J_R​      | J_D​     | F_D​      | F_R​      | F_D​     | Speed     |
-| --------------- | -------- | -------- | ------- | -------- | -------- | ------- | --------- |
-| SiamMask        | 71.3     | 86.8     | 3.0     | **67.8** | **79.8** | 2.1     | 55.00     |
-| SiamPolar-light | 65.3     | 85.4     | 2.1     | 49.3     | 50.5     | **0.8** | **63.20** |
-| SiamPolar       | **71.4** | **96.2** | **0.7** | 56.7     | 60.0     | 18.1    | 59.20     |
+| Methods         | J_M​  | J_R​  | J_D​  | F_D​  | F_R​  | F_D​  | Speed     |
+| --------------- | ---- | ---- | ---- | ---- | ---- | ---- | --------- |
+| SiamPolar-light | 66.4 | 89.7 | 0.2  | 50.8 | 52.2 | 0.4  | 63.20 FPS |
+| SiamPolar       | 71.4 | 96.2 | 0.7  | 56.7 | 60.0 | 18.1 | 59.20 FPS |
 
 ## Setup Environment
 
@@ -54,7 +50,9 @@ If there is any problem with the environment, please check the versions first:
 - mmdet == 1.0rc0+3ad0a02
 - mmcv == 0.4.3
 
-## Prepare DAVIS2016 Dataset
+## Prepare Dataset
+
+### DAVIS2016
 
 1. Download DAVIS2016 from [kaggle-DAVIS480p](https://www.kaggle.com/mrjb166/davis480p).
 
@@ -83,7 +81,7 @@ SiamPolar
 |  |  |  ├── 480p
 ```
 
-## Prepare SegTrack / SegTrack v2 Dataset
+### SegTrack / SegTrack v2
 
 1. Download [SegTrack Dataset](http://cpl.cc.gatech.edu/projects/SegTrack/) / [SegTrack v2](https://web.engr.oregonstate.edu/~lif/SegTrack2/dataset.html).
 2. Convert SegTrack / SegTrack v2 to COCO format: 
@@ -100,9 +98,7 @@ python tools/convert_datasets/segtrack2coco_v2.py [path to SegTrack v2 dataset]
 
 ## Train & Test
 
-SiamPolar can be trained and test as other mmdetection models. For more details, you can read [mmdetection-manual](https://mmdetection.readthedocs.io/en/latest/INSTALL.html) and [mmcv-manual](https://mmcv.readthedocs.io/en/latest/image.html). This is an example of SiamPolar(ResNet101 Backbone). 
-
-Please check all the configures of SiamPolar in `./config/siampolar/`. 
+SiamPolar can be trained and test as other mmdetection models. For more details, you can read [mmdetection-manual](https://mmdetection.readthedocs.io/en/latest/INSTALL.html) and [mmcv-manual](https://mmcv.readthedocs.io/en/latest/image.html). Please check all the configures of SiamPolar in `./config/siampolar/`. 
 
 ```bash
 # train
@@ -114,48 +110,7 @@ python tools/test.py <path to configure file> <path to pretrained model> \
 --eval vos
 ```
 
-Here are some examples: 
-
-```shell
-# DAVIS2016
-python tools/train.py ./configs/siampolar/siampolar_r101.py --gpus 1
-python tools/test.py ./configs/siampolar/siampolar_r101.py ./work_dirs/asy_r101_semi/epoch_36.pth \
---out ./work_dirs/trash/res.pkl \
---eval vos
-
-# DAVIS2016_GCN
-python tools/train.py ./configs/siampolar/siampolar_r101_gcn.py --gpus 1 --resume_from ./work_dirs/trash/epoch_2.pth
-python tools/test.py ./configs/siampolar/siampolar_r101_gcn.py ./work_dirs/trash/epoch_36.pth \
---out ./work_dirs/trash/res.pkl \
---eval vos
-
-# DAVIS2016_light
-python tools/train.py ./configs/siampolar/siampolar_r101_light.py --gpus 1
-python tools/test.py ./configs/siampolar/siampolar_r101_light.py ./work_dirs/light/epoch_24.pth \
---out ./work_dirs/light/res.pkl \
---eval vos
-python tools/test.py ./configs/siampolar/siampolar_r101_light.py ./work_dirs/trash/epoch_24.pth \
---out ./work_dirs/trash/res.pkl \
---eval vos
-
-# TSD-max
-python tools/train.py ./configs/siampolar/siampolar_r101_tsd-max.py --gpus 1
-python tools/test.py ./configs/siampolar/siampolar_r101_tsd-max.py ./work_dirs/tsd_max/epoch_36.pth \
---out ./work_dirs/tsd_max/res.pkl \
---eval vos
-
-# SegTrack
-python tools/train.py ./configs/siampolar/siampolar_r101_segtrack.py --gpus 1
-python tools/test.py ./configs/siampolar/siampolar_r101_segtrack.py ./work_dirs/segtrack/epoch_36.pth \
---out ./work_dirs/segtrack/res.pkl \
---eval vos
-
-# SegTrack v2
-python tools/train.py ./configs/siampolar/siampolar_r101_segtrackv2.py --gpus 1
-python tools/test.py ./configs/siampolar/siampolar_r101_segtrackv2.py ./work_dirs/segtrackv2/epoch_36.pth \
---out ./work_dirs/segtrackv2/res.pkl \
---eval vos
-```
+There are some examples in `./Command_Examples.md`. Please set them to your own configures. 
 
 ## Demo
 

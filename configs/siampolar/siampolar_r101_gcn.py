@@ -1,7 +1,7 @@
 '''
 @Author: JosieHong
 @Date: 2020-05-05 00:47:49
-LastEditTime: 2021-06-24 19:27:49
+LastEditTime: 2021-06-25 01:02:55
 '''
 
 # model settings
@@ -70,8 +70,8 @@ data_root = 'data/DAVIS/'
 img_norm_cfg = dict(
     mean=[102.9801, 115.9465, 122.7717], std=[1.0, 1.0, 1.0], to_rgb=False)
 data = dict(
-    imgs_per_gpu=24,
-    workers_per_gpu=5,
+    imgs_per_gpu=16,
+    workers_per_gpu=8, 
     train=dict(
         type=dataset_type,
         ann_file=data_root + 'Annotations/480p_trainval.json',
@@ -147,11 +147,11 @@ log_config = dict(
     ])
 # yapf:enable
 # runtime settings
-total_epochs = 24
+total_epochs = 36
 device_ids = range(4)
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = './work_dirs/trash'
+work_dir = './work_dirs/polar_gcn'
 load_from = None
 resume_from = None
 workflow = [('train', 1)]

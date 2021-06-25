@@ -1,7 +1,7 @@
 '''
 @Author: JosieHong
 @Date: 2020-05-05 00:47:49
-LastEditTime: 2021-06-24 21:55:28
+LastEditTime: 2021-06-24 23:45:08
 '''
 
 # model settings
@@ -69,8 +69,8 @@ data_root = 'data/DAVIS/'
 img_norm_cfg = dict(
     mean=[102.9801, 115.9465, 122.7717], std=[1.0, 1.0, 1.0], to_rgb=False)
 data = dict(
-    imgs_per_gpu=24, 
-    workers_per_gpu=5,
+    imgs_per_gpu=16, 
+    workers_per_gpu=8, 
     train=dict(
         type=dataset_type,
         ann_file=data_root + 'Annotations/480p_trainval.json',
