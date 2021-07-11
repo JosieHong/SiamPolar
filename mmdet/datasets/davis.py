@@ -2,7 +2,7 @@
 @Author: JosieHong
 @Date: 2020-04-26 12:40:11
 @LastEditAuthor: JosieHong
-LastEditTime: 2021-06-24 23:29:49
+LastEditTime: 2021-07-06 21:49:28
 '''
 import os.path as osp
 import warnings
@@ -22,31 +22,57 @@ from .coco_seg import Coco_Seg_Dataset, INF
 @DATASETS.register_module
 class DAVIS_Seg_Dataset(Coco_Seg_Dataset):
 
-    CLASSES = ('aerobatics', 'bear', 'bike-packing', 'blackswan', 'bmx-bumps', 
+    # davis 2016
+    # CLASSES = ('aerobatics', 'bear', 'bike-packing', 'blackswan', 'bmx-bumps', 
+    #             'bmx-trees', 'boat', 'boxing-fisheye', 'breakdance', 'breakdance-flare', 
+    #             'bus', 'camel', 'car-race', 'car-roundabout', 'car-shadow', 
+    #             'car-turn', 'carousel', 'cat-girl', 'cats-car', 'chamaleon', 
+    #             'classic-car', 'color-run', 'cows', 'crossing', 'dance-jump', 
+    #             'dance-twirl', 'dancing', 'deer', 'disc-jockey', 'dog', 
+    #             'dog-agility', 'dog-gooses', 'dogs-jump', 'dogs-scale', 'drift-chicane', 
+    #             'drift-straight', 'drift-turn', 'drone', 'elephant', 'flamingo',
+    #             'giant-slalom', 'girl-dog', 'goat', 'gold-fish', 'golf',
+    #             'guitar-violin', 'gym', 'helicopter', 'hike', 'hockey', 
+    #             'horsejump-high', 'horsejump-low', 'horsejump-stick', 'hoverboard', 'india',
+    #             'judo', 'kid-football', 'kite-surf', 'kite-walk', 'koala',
+    #             'lab-coat', 'lady-running', 'libby', 'lindy-hop', 'loading', 
+    #             'lock', 'longboard', 'lucia', 'mallard-fly', 'mallard-water', 
+    #             'man-bike', 'mbike-trick', 'miami-surf', 'monkeys-trees', 'motocross-bumps', 
+    #             'motocross-jump', 'motorbike', 'mtb-race', 'night-race', 'orchid', 
+    #             'paragliding', 'paragliding-launch', 'parkour', 'people-sunset', 'pigs',
+    #             'planes-crossing', 'planes-water', 'rallye', 'rhino', 'rollerblade', 
+    #             'rollercoaster', 'salsa', 'schoolgirls', 'scooter-black', 'scooter-board',
+    #             'scooter-gray', 'seasnake', 'sheep', 'shooting', 'skate-jump', 
+    #             'skate-park', 'slackline', 'snowboard', 'soapbox', 'soccerball', 
+    #             'stroller', 'stunt', 'subway', 'surf', 'swing', 
+    #             'tandem', 'tennis', 'tennis-vest', 'tractor', 'tractor-sand', 
+    #             'train', 'tuk-tuk', 'upside-down', 'varanus-cage', 'walking')
+    
+    # davis 2017
+    CLASSES = ('bear', 'bike-packing', 'blackswan', 'bmx-bumps', 
                 'bmx-trees', 'boat', 'boxing-fisheye', 'breakdance', 'breakdance-flare', 
-                'bus', 'camel', 'car-race', 'car-roundabout', 'car-shadow', 
-                'car-turn', 'carousel', 'cat-girl', 'cats-car', 'chamaleon', 
-                'classic-car', 'color-run', 'cows', 'crossing', 'dance-jump', 
+                'bus', 'camel', 'car-roundabout', 'car-shadow', 
+                'car-turn', 'cat-girl', 'classic-car', 'color-run', 'cows', 'crossing', 'dance-jump', 
                 'dance-twirl', 'dancing', 'deer', 'disc-jockey', 'dog', 
                 'dog-agility', 'dog-gooses', 'dogs-jump', 'dogs-scale', 'drift-chicane', 
                 'drift-straight', 'drift-turn', 'drone', 'elephant', 'flamingo',
-                'giant-slalom', 'girl-dog', 'goat', 'gold-fish', 'golf',
-                'guitar-violin', 'gym', 'helicopter', 'hike', 'hockey', 
-                'horsejump-high', 'horsejump-low', 'horsejump-stick', 'hoverboard', 'india',
+                'goat', 'gold-fish', 
+                'hike', 'hockey', 
+                'horsejump-high', 'horsejump-low', 'india',
                 'judo', 'kid-football', 'kite-surf', 'kite-walk', 'koala',
                 'lab-coat', 'lady-running', 'libby', 'lindy-hop', 'loading', 
-                'lock', 'longboard', 'lucia', 'mallard-fly', 'mallard-water', 
-                'man-bike', 'mbike-trick', 'miami-surf', 'monkeys-trees', 'motocross-bumps', 
-                'motocross-jump', 'motorbike', 'mtb-race', 'night-race', 'orchid', 
-                'paragliding', 'paragliding-launch', 'parkour', 'people-sunset', 'pigs',
-                'planes-crossing', 'planes-water', 'rallye', 'rhino', 'rollerblade', 
-                'rollercoaster', 'salsa', 'schoolgirls', 'scooter-black', 'scooter-board',
-                'scooter-gray', 'seasnake', 'sheep', 'shooting', 'skate-jump', 
-                'skate-park', 'slackline', 'snowboard', 'soapbox', 'soccerball', 
-                'stroller', 'stunt', 'subway', 'surf', 'swing', 
-                'tandem', 'tennis', 'tennis-vest', 'tractor', 'tractor-sand', 
+                'longboard', 'lucia', 'mallard-fly', 'mallard-water', 
+                'mbike-trick', 'miami-surf', 'motocross-bumps', 
+                'motocross-jump', 'motorbike', 'night-race', 
+                'paragliding', 'paragliding-launch', 'parkour', 'pigs', 
+                'planes-water', 'rallye', 'rhino', 'rollerblade', 
+                'schoolgirls', 'scooter-black', 'scooter-board',
+                'scooter-gray', 'sheep', 'shooting', 
+                'skate-park', 'snowboard', 'soapbox', 'soccerball', 
+                'stroller', 'stunt', 'surf', 'swing', 
+                'tennis', 'tractor-sand', 
                 'train', 'tuk-tuk', 'upside-down', 'varanus-cage', 'walking')
-                
+
     def __init__(self,
                  ann_file,
                  img_prefix,

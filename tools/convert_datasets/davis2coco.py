@@ -10,17 +10,18 @@ from collections import OrderedDict
 from pycocotools import mask as cocomask
 
 
-class DAVIS2016():
+class DAVIS():
     """
-        DAVIS 2016 class to convert annotations to COCO Json format
+        DAVIS class to convert annotations to COCO Json format
     """
-    def __init__(self, datapath, imageres="480p"):
-        self.info = {"year" : 2016,
+    def __init__(self, version, datapath, imageres="480p"):
+        self.version = version
+        self.info = {"year" : version, 
                      "version" : "1.0",
                      "description" : "A Benchmark Dataset and Evaluation Methodology for Video Object Segmentation (DAVIS)",
                      "contributor" : "F. Perazzi, J. Pont-Tuset, B. McWilliams, L. Van Gool, M. Gross, A. Sorkine-Hornung ",
                      "url" : "http://davischallenge.org/",
-                     "date_created" : "2016"
+                     "date_created" : version
                     }
         self.licenses = [{"id": 1,
                           "name": "Attribution-NonCommercial",
@@ -28,16 +29,25 @@ class DAVIS2016():
                          }]
         self.type = "instances"
         self.datapath = datapath
-        self.seqs = yaml.load(open(os.path.join(self.datapath, "Annotations", "db_info.yml"),
-                                   "r")
-                             )["sequences"]
+        self.seqs = yaml.load(open(os.path.join(self.datapath, "Annotations", "db_info.yml"), "r"), Loader=yaml.FullLoader)["sequences"]
 
         self.categories = [{"id": seqId+1, "name": seq["name"], "supercategory": seq["name"]}
                               for seqId, seq in enumerate(self.seqs)]
         self.cat2id = {cat["name"]: catId+1 for catId, cat in enumerate(self.categories)}
 
-        for s in ["train", "trainval", "val"]:
-            imlist = np.genfromtxt( os.path.join(self.datapath, "ImageSets", imageres, s + ".txt"), dtype=str)
+        
+        image_sets = ["train", "trainval", "val"] if version == '2016' else ["train", "val"]
+        for s in image_sets:
+            if version == '2016':
+                imlist = np.genfromtxt(os.path.join(self.datapath, "ImageSets", imageres, s + ".txt"), dtype=str)
+            else:
+                namelist = np.genfromtxt(os.path.join(self.datapath, "ImageSets", imageres, s + ".txt"), dtype=str)
+                imlist = []
+                for n in namelist: 
+                    i_list = os.listdir(os.path.join(self.datapath, 'JPEGImages', '480p', n))
+                    a_list = os.listdir(os.path.join(self.datapath, 'Annotations', '480p', n))
+                    imlist.extend([[os.path.join('/JPEGImages', '480p', n, i), os.path.join('/Annotations', '480p', n, a)] for i, a in zip(i_list, a_list)])
+
             images, annotations = self.__get_image_annotation_pairs__(imlist)
             json_data = {"info" : self.info,
                          "images" : images,
@@ -56,7 +66,7 @@ class DAVIS2016():
         flag_name = None
         for imId, paths in enumerate(image_set):
             impath, annotpath = paths[0], paths[1]
-            print (impath)
+            print(impath)
             name = impath.split("/")[3]
             # get the first frame's id
             if name != flag_name:
@@ -69,6 +79,8 @@ class DAVIS2016():
                 continue
 
             segmentation, bbox, area = self.__get_annotation__(mask, img)
+            if segmentation == None:
+                continue
             images.append({"date_captured" : "2016",
                            "file_name" : impath[1:], # remove "/"
                            "id" : imId+1,
@@ -92,9 +104,14 @@ class DAVIS2016():
 
         segmentation = []
         for contour in contours:
-            # Valid polygons have >= 6 coordinates (3 points)
+            # Valid polygons have >= 6 coordinates (3 points) # j0sie: why?
             if contour.size >= 6:
                 segmentation.append(contour.flatten().tolist())
+
+        # j0sie: 2021.7.6
+        if len(segmentation) == 0: 
+            return None, None, None
+
         RLEs = cocomask.frPyObjects(segmentation, mask.shape[0], mask.shape[1])
         RLE = cocomask.merge(RLEs)
         # RLE = cocomask.encode(np.asfortranarray(mask))
@@ -112,9 +129,15 @@ class DAVIS2016():
         return segmentation, [x, y, w, h], area
 
 if __name__ == "__main__":
-    # datapath = "/data/dataset/DAVIS"
-    datapath = sys.argv[1]
-    DAVIS2016(datapath)
+    version = sys.argv[1]
+    datapath = sys.argv[2]
+    if version == '2016':
+        DAVIS(version, datapath, imageres='480p')
+    elif version == '2017':
+        DAVIS(version, datapath, imageres='2017')
+    else:
+        print("Please choose the version in [2016|2017].")
+        exit()
 
     # test
     # from PIL import Image

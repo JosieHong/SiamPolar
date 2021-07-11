@@ -493,8 +493,12 @@ class Coco_Seg_Dataset(CustomDataset):
             area += fg
             x += fg * (lat + lat1) / 3.0
             y += fg * (lng + lng1) / 3.0
-        x = x / area
-        y = y / area
+        if area == 0.0:
+            x = 0.0
+            y = 0.0
+        else:
+            x = x / area
+            y = y / area
 
         return [int(x), int(y)]
 

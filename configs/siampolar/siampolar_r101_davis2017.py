@@ -1,7 +1,7 @@
 '''
 @Author: JosieHong
 @Date: 2020-05-05 00:47:49
-LastEditTime: 2021-07-09 16:49:32
+LastEditTime: 2021-07-11 00:24:29
 '''
 
 # model settings
@@ -22,14 +22,8 @@ model = dict(
         correlation_blocks=[5], # block index
         # attention_blocks=[2, 3, 4]
         ), 
-    # neck=dict(
-    #     type='SemiFPN',
-    #     in_channels=[256, 512, 1024, 2048],
-    #     out_channels=256,
-    #     start_level=1,
-    #     num_outs=4),
     neck=dict(
-        type='FPN',
+        type='SemiFPN',
         in_channels=[256, 512, 1024, 2048],
         out_channels=256,
         start_level=1,
@@ -37,7 +31,7 @@ model = dict(
     bbox_head=dict(
         type='SiamPolar_Head',
         num_classes=120,
-        num_polar=36,
+        num_polar=72,
         in_channels=256,
         stacked_convs=4,
         feat_channels=256,
@@ -80,12 +74,12 @@ data = dict(
     workers_per_gpu=8, 
     train=dict(
         type=dataset_type,
-        ann_file=data_root + 'Annotations/480p_trainval.json',
+        ann_file=data_root + 'Annotations/2017_train.json',
         img_prefix=data_root,
         img_scale=(255, 255), # original size
         img_norm_cfg=img_norm_cfg,
         refer_scale=(127, 127),
-        num_polar=36,
+        num_polar=72,
         # size_divisor=0,
         flip_ratio=0.5,
         with_mask=True,
@@ -97,12 +91,12 @@ data = dict(
         regress_ranges=[(-1, 256), (256, 512), (512, 1024), (1024, 1e8)]),
     val=dict(
         type=dataset_type,
-        ann_file=data_root + 'Annotations/480p_val.json',
+        ann_file=data_root + 'Annotations/2017_val.json',
         img_prefix=data_root,
         img_scale=(255, 255),
         img_norm_cfg=img_norm_cfg,
         refer_scale=(127, 127),
-        num_polar=36,
+        num_polar=72,
         # size_divisor=0,
         flip_ratio=0,
         with_mask=False,
@@ -111,12 +105,12 @@ data = dict(
         resize_keep_ratio=False),
     test=dict(
         type=dataset_type,
-        ann_file=data_root + 'Annotations/480p_val.json',
+        ann_file=data_root + 'Annotations/2017_val.json',
         img_prefix=data_root,
         img_scale=(255, 255),
         img_norm_cfg=img_norm_cfg,
         refer_scale=(127, 127),
-        num_polar=36,
+        num_polar=72,
         size_divisor=32,
         flip_ratio=0,
         with_mask=False,
@@ -131,14 +125,14 @@ optimizer = dict(
     type='SGD',
     lr=0.01 * lr_ratio,
     momentum=0.9,
-    weight_decay=0.0001,
+    weight_decay=0.001,
     paramwise_options=dict(bias_lr_mult=2., bias_decay_mult=0.))
 optimizer_config = dict(grad_clip=dict(max_norm=35, norm_type=2))
 # learning policy
 lr_config = dict(
     policy='step',
     warmup='linear',
-    warmup_iters=500,
+    warmup_iters=300, 
     warmup_ratio=1.0 / 3 / lr_ratio,
     step=[8, 11, 17, 23, 29, 35])
 checkpoint_config = dict(interval=1)
@@ -157,7 +151,7 @@ total_epochs = 36
 device_ids = range(4)
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = './work_dirs/polar_r101'
+work_dir = './work_dirs/polar_r101_2017'
 load_from = None
 resume_from = None
 workflow = [('train', 1)]

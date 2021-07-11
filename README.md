@@ -6,16 +6,27 @@
 
 
 
-- **Feb 14, 2021**: SiamPolar v1.0. 
+- **Feb 14, 2021**: SiamPolar v1.0 
 - **Jun 15, 2021**: Our paper is accepted by ITSC2021. 
-- **Jun 24, 2021:** Update SiamPolar-light. 
+- **Jun 24, 2021:** Update SiamPolar-light
+- **Jul 11, 2021:** Update the experiments on DAVIS2017
 
-## Performances on DAVIS2016
+## Performances
+
+**1. DAVIS2016**
 
 | Methods         | J_M​  | J_R​  | J_D​  | F_D​  | F_R​  | F_D​  | Speed     |
 | --------------- | ---- | ---- | ---- | ---- | ---- | ---- | --------- |
 | SiamPolar-light | 66.4 | 89.7 | 0.2  | 50.8 | 52.2 | 0.4  | 63.20 FPS |
 | SiamPolar       | 71.4 | 96.2 | 0.7  | 56.7 | 60.0 | 18.1 | 59.20 FPS |
+
+**2. DAVIS2017**
+
+coming up soon...
+
+| Methods   | J_M​  | J_R​  | F_D​  | F_R​  | Speed     |
+| --------- | ---- | ---- | ---- | ---- | --------- |
+| SiamPolar | 50.8 | 64.4 | 29.0 | 13.7 | 59.20 FPS |
 
 ## Setup Environment
 
@@ -56,7 +67,7 @@ If there is any problem with the environment, please check the versions first:
 
 1. Download DAVIS2016 from [kaggle-DAVIS480p](https://www.kaggle.com/mrjb166/davis480p).
 
-2. Convert DAVIS2016 to COCO format by `./tools/convert_datasets/davis2coco.py [path to DAVIS2016 dataset]` and organized it as following: (The files in brackets are not used in SiamPolar.)
+2. Convert DAVIS2016 to COCO format by `python ./tools/convert_datasets/davis2coco.py 2016 <path to DAVIS2016 dataset>` and organized it as following: (The files in brackets are not used in SiamPolar.)
 
 ```shell
 SiamPolar
@@ -80,6 +91,14 @@ SiamPolar
 │  │  ├── JPEGImages
 |  |  |  ├── 480p
 ```
+
+### DAVIS2017
+
+1. Download DAVIS2017 from [DAVIS-2017](https://davischallenge.org/davis2017/code.html).
+
+2. Download `db_info.yml` from [davis-2017/data/db_info.yaml](https://github.com/fperazzi/davis-2017/blob/master/data/db_info.yaml).
+
+3. Convert DAVIS2017 to COCO format by `python ./tools/convert_datasets/davis2coco.py 2017 <path to DAVIS2017 dataset>` and organized it as the structure of DAVIS2016. 
 
 ### SegTrack / SegTrack v2
 
