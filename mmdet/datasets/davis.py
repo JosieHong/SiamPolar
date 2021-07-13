@@ -2,7 +2,7 @@
 @Author: JosieHong
 @Date: 2020-04-26 12:40:11
 @LastEditAuthor: JosieHong
-LastEditTime: 2021-07-06 21:49:28
+LastEditTime: 2021-07-11 12:52:18
 '''
 import os.path as osp
 import warnings
@@ -125,7 +125,7 @@ class DAVIS_Seg_Dataset(Coco_Seg_Dataset):
         self.refer_scale = refer_scale
         self.strides = strides
         self.regress_ranges = regress_ranges
-        assert num_polar in [36, 72]
+        assert num_polar in [36, 72, 180]
         self.num_polar = num_polar
     
     def prepare_train_img(self, idx):

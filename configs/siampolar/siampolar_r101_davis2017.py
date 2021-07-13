@@ -1,7 +1,7 @@
 '''
 @Author: JosieHong
 @Date: 2020-05-05 00:47:49
-LastEditTime: 2021-07-11 00:24:29
+LastEditTime: 2021-07-11 12:50:09
 '''
 
 # model settings
@@ -31,7 +31,7 @@ model = dict(
     bbox_head=dict(
         type='SiamPolar_Head',
         num_classes=120,
-        num_polar=72,
+        num_polar=180,
         in_channels=256,
         stacked_convs=4,
         feat_channels=256,
@@ -79,7 +79,7 @@ data = dict(
         img_scale=(255, 255), # original size
         img_norm_cfg=img_norm_cfg,
         refer_scale=(127, 127),
-        num_polar=72,
+        num_polar=180,
         # size_divisor=0,
         flip_ratio=0.5,
         with_mask=True,
@@ -96,7 +96,7 @@ data = dict(
         img_scale=(255, 255),
         img_norm_cfg=img_norm_cfg,
         refer_scale=(127, 127),
-        num_polar=72,
+        num_polar=180,
         # size_divisor=0,
         flip_ratio=0,
         with_mask=False,
@@ -110,7 +110,7 @@ data = dict(
         img_scale=(255, 255),
         img_norm_cfg=img_norm_cfg,
         refer_scale=(127, 127),
-        num_polar=72,
+        num_polar=180,
         size_divisor=32,
         flip_ratio=0,
         with_mask=False,

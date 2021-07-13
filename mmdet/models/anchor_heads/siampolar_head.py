@@ -61,7 +61,7 @@ class SiamPolar_Head(nn.Module):
         self.use_dcn = use_dcn
         self.mask_nms = mask_nms
         # josie add for siampolar
-        assert num_polar in [36, 72]
+        assert num_polar in [36, 72, 180]
         self.num_polar = num_polar
 
         # debug vis img

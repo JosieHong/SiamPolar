@@ -22,11 +22,9 @@
 
 **2. DAVIS2017**
 
-coming up soon...
-
 | Methods   | J_M​  | J_R​  | F_D​  | F_R​  | Speed     |
 | --------- | ---- | ---- | ---- | ---- | --------- |
-| SiamPolar | 50.8 | 64.4 | 29.0 | 13.7 | 59.20 FPS |
+| SiamPolar | 55.2 | 69.4 | 39.0 | 23.7 | 59.20 FPS |
 
 ## Setup Environment
 
