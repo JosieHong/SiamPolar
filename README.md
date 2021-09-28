@@ -7,9 +7,10 @@
 
 
 - **Feb 14, 2021**: SiamPolar v1.0 
-- **Jun 15, 2021**: Our paper is accepted by ITSC2021. 
+- **Jun 15, 2021**: Our paper is accepted by ITSC2021
 - **Jun 24, 2021:** Update SiamPolar-light
 - **Jul 11, 2021:** Update the experiments on DAVIS2017
+- **Sep 25, 2021**: Our extended paper is accepted by Neurocomputing
 
 ## Performances
 
