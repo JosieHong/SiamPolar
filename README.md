@@ -1,10 +1,22 @@
 # SiamPolar
 
-The codes of [SiamPolar: Realtime Video Object Segmentation with Polar Representation](https://www.sciencedirect.com/science/article/abs/pii/S0925231221014417). 
+This is the codes of [SiamPolar: Realtime Video Object Segmentation with Polar Representation](https://www.sciencedirect.com/science/article/abs/pii/S0925231221014417). 
 
 <div align="center">
 	<img src="./imgs/siam_polarmask_pipeline.png" alt="siam_polarmask_pipeline" width="900">
 </div>
+
+If you find this code useful in your research then please cite
+
+```
+@article{hong2021siampolar,
+  title={SiamPolar: Semi-supervised Realtime Video Object Segmentation with Polar Representation},
+  author={Hong, Yuhui and Song, Yonghong and Zhu, Chao and Zhang, Ying and Wang, Ruihao},
+  journal={Neurocomputing},
+  year={2021},
+  publisher={Elsevier}
+}
+```
 
 ## Performances
 
